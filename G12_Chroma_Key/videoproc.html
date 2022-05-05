@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="bootstrap/bootstrap4-toggle.min.css">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
-
+    
     <title>Group 12--Chroma Key project</title>
 
     <style>
@@ -45,7 +45,9 @@
             -o-transition: none;
             transition: none;
         }
-        
+        .toggle { height: 38px !important;
+        width: 50px; }
+
         img {
             border: 0
         }
@@ -155,98 +157,131 @@
             <div class="col-4">
                 <!-- Operation tabs -->
                 <ul class="nav nav-tabs nav-fill">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Effect - <span class="title">Reverse</span>
-                            <span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item effect-category" href="#reverse" data-toggle="tab">Reverse</a></li>
-                            <li><a class="dropdown-item effect-category" href="#fadeInOut" data-toggle="tab">Fade In and Out</a></li>
-                            <li><a class="dropdown-item effect-category" href="#motionBlur" data-toggle="tab">Motion Blur</a></li>
-                            <li><a class="dropdown-item effect-category" href="#earthquake" data-toggle="tab">Earthquake</a></li>
-                            <li><a class="dropdown-item effect-category" href="#crossFade" data-toggle="tab">Cross Fade</a></li>
-                        </ul>
-                    </li>
+                    <li class="nav-item"><a class="nav-link active" href="#chromaKey" role="tab" data-toggle="tab">Chroma Key</a></li>
                 </ul>
+            
 
                 <!-- Tab panes -->
                 <div class="tab-content">
 
-                    <!-- Reverse -->
-                    <div role="tabpanel" class="tab-pane active" id="reverse">
-                        <div class="container-fluid px-0">
-                            <p>No parameters available</p>
+                    <!-- Chroma Key -->
+                    <div class="tab-pane active" id="chromaKey">
+                        <div class="row mb-4">
+                            <div class="col">
+                                <label for="use-chroma-key">Turn On Chroma Key:</label>
+                                <div class="input-group">
+                                    <input class="form-control toggle-control" id="use-chroma-key" type="checkbox" />
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                        
 
-                    <!-- Fade in/out -->
-                    <div role="tabpanel" class="tab-pane" id="fadeInOut">
-                        <div class="container-fluid px-0 mb-3">
-                            <div class="row">
-                                <div class="col">
-                                    <label for="fadeIn-duration">Fade-in duration:</label>
-                                    <div class="input-group">
-                                        <input class="form-control" id="fadeIn-duration" type="number" value="2" min="1" step="0.5">
-                                        <div class="input-group-append"><span class="input-group-text">seconds</span></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col mt-2">
-                                    <label for="fadeOut-duration">Fade-out duration:</label>
-                                    <div class="input-group">
-                                        <input class="form-control" id="fadeOut-duration" type="number" value="2" min="1" step="0.5">
-                                        <div class="input-group-append"><span class="input-group-text">seconds</span></div>
-                                    </div>
+                        <div class="row mb-4">
+                            <div class="col">
+                                <label for="colorKey-threshold">Color Key Threshold:</label>
+                                <div class="input-group">
+                                    <input class="form-control" id="colorKey-threshold" type="number" value="0.2" min="0.1" max="1" step="0.1">
+                                    <div class="input-group-append"><span class="input-group-text">steps</span></div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                        <div class="row mb-4">
+                            <div class="col">
+                                <label for="ChromaKey Effect">Extra Effects:</label>
+                                <ul class="nav nav-tabs nav-fill">
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#"> <span class="title">Reverse</span>
+                                            <span class="caret"></span></a>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item effect-category" href="#reverse" data-toggle="tab">Reverse</a></li>
+                                            <li><a class="dropdown-item effect-category" href="#fadeInOut" data-toggle="tab">Fade In and Out</a></li>
+                                            <li><a class="dropdown-item effect-category" href="#motionBlur" data-toggle="tab">Motion Blur</a></li>
+                                            <li><a class="dropdown-item effect-category" href="#earthquake" data-toggle="tab">Earthquake</a></li>
+                                            <li><a class="dropdown-item effect-category" href="#crossFade" data-toggle="tab">Cross Fade</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                                <div class="tab-content">
+                                <!-- Reverse -->
+                                    <div role="tabpanel" class="tab-pane active" id="reverse">
+                                        <div class="container-fluid px-0">
+                                            <p>No parameters available</p>
+                                        </div>
+                                    </div>
+                                    <!-- Fade in/out -->
+                                    <div role="tabpanel" class="tab-pane" id="fadeInOut">
+                                        <div class="container-fluid px-0 mb-3">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <label for="fadeIn-duration">Fade-in duration:</label>
+                                                    <div class="input-group">
+                                                        <input class="form-control" id="fadeIn-duration" type="number" value="2" min="1" step="0.5">
+                                                        <div class="input-group-append"><span class="input-group-text">seconds</span></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col mt-2">
+                                                    <label for="fadeOut-duration">Fade-out duration:</label>
+                                                    <div class="input-group">
+                                                        <input class="form-control" id="fadeOut-duration" type="number" value="2" min="1" step="0.5">
+                                                        <div class="input-group-append"><span class="input-group-text">seconds</span></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                    <!-- Motion blur -->
-                    <div role="tabpanel" class="tab-pane" id="motionBlur">
-                        <div class="container-fluid px-0 mb-3">
-                            <div class="row">
-                                <div class="col">
-                                    <label for="blur-frames">Frames:</label>
-                                    <div class="input-group">
-                                        <input class="form-control" id="blur-frames" type="number" value="2" min="2" step="1">
+                                    <!-- Motion blur -->
+                                    <div role="tabpanel" class="tab-pane" id="motionBlur">
+                                        <div class="container-fluid px-0 mb-3">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <label for="blur-frames">Frames:</label>
+                                                    <div class="input-group">
+                                                        <input class="form-control" id="blur-frames" type="number" value="2" min="2" step="1">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- Earthquake -->
-                    <div role="tabpanel" class="tab-pane" id="earthquake">
-                        <div class="container-fluid px-0 mb-3">
-                            <div class="row">
-                                <div class="col">
-                                    <label for="earthquake-strength">Strength:</label>
-                                    <div class="input-group">
-                                        <input class="form-control" id="earthquake-strength" type="number" value="25" min="3" step="2">
+                                    <!-- Earthquake -->
+                                    <div role="tabpanel" class="tab-pane" id="earthquake">
+                                        <div class="container-fluid px-0 mb-3">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <label for="earthquake-strength">Strength:</label>
+                                                    <div class="input-group">
+                                                        <input class="form-control" id="earthquake-strength" type="number" value="25" min="3" step="2">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- Crossfade -->
-                    <div role="tabpanel" class="tab-pane" id="crossFade">
-                        <div class="container-fluid px-0 mb-3">
-                            <div class="row">
-                                <div class="col">
-                                    <label for="crossFade-duration">Overlapped duration:</label>
-                                    <div class="input-group">
-                                        <input class="form-control" id="crossFade-duration" type="number" value="3" min="1" step="0.1">
-                                        <div class="input-group-append"><span class="input-group-text">seconds</span></div>
+                                    <!-- Crossfade -->
+                                    <div role="tabpanel" class="tab-pane" id="crossFade">
+                                        <div class="container-fluid px-0 mb-3">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <label for="crossFade-duration">Overlapped duration:</label>
+                                                    <div class="input-group">
+                                                        <input class="form-control" id="crossFade-duration" type="number" value="3" min="1" step="0.1">
+                                                        <div class="input-group-append"><span class="input-group-text">seconds</span></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
+                                </div>   
                             </div>
                         </div>
-                    </div>
+                    </div>  
                 </div>
                 <button class="btn btn-primary" id="apply-effect">Apply</button>
             </div>
+
             <div class="col-4">
                 <ul class="nav nav-tabs nav-fill">
                     <li class="nav-item"><a class="nav-link active" href="#output-video-tab" role="tab" data-toggle="tab">Output Video</a></li>

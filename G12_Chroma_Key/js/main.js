@@ -255,4 +255,5 @@ $(function() {
     $('a.dropdown-item').on("click", changeTabs);
     $("#apply-effect").on("click", applyEffect);
     $("#cancel-processing").on("click", function() {stopProcessingFlag = true;});
+    $("input[type=checkbox]").bootstrapToggle();
 });

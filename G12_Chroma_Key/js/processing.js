@@ -4,7 +4,7 @@ var outputDuration = 0; // The duration of the output video
 var outputFramesBuffer = []; // The frames buffer for the output video
 var currentFrame = 0; // The current frame being processed
 var completedFrames = 0; // The number of completed frames
-
+var threshold=0;
 // This function starts the processing of an individual frame.
 function processFrame() {
     if (currentFrame < outputDuration) {
@@ -63,6 +63,64 @@ var effects = {
             finishFrame();
         }
     },
+    chromaKey: {
+        setup: function() {
+            threshold=$("#colorKey-threshold").val();
+            // Initialize the duration of the output video
+            outputDuration = input1FramesBuffer.length;
+
+            // Prepare the array for storing the output frames
+            outputFramesBuffer = new Array(outputDuration);
+        },
+        process: function(idx) {
+            // Use a canvas to store frame content
+            var w = $("#input-video-1").get(0).videoWidth;
+            var h = $("#input-video-1").get(0).videoHeight;
+            var canvas = getCanvas(w, h);
+            var ctx = canvas.getContext('2d');
+
+            var w2 = $("#input-video-2").get(0).videoWidth;
+            var h2 = $("#input-video-2").get(0).videoHeight;
+            var canvas2 = getCanvas(w2, h2);
+            var ctx2 = canvas2.getContext('2d');
+
+            var img = new Image();
+            var img2=new Image();
+            img.onload = function() {
+                // Get the image data object
+                ctx.drawImage(img, 0, 0);
+                var imageData = ctx.getImageData(0, 0, w, h);
+                ctx2.drawImage(img2, 0, 0);
+                var imageData2 = ctx2.getImageData(0, 0, w2, h2);
+
+                /*
+                 * TODO: Modify the pixels
+                 */               
+                console.log(threshold);
+                for (var i = 0; i < imageData.data.length; i += 4) {
+                    //console.log(Math.hypot(imageData.data[i]-112, imageData.data[i + 1]-158,imageData.data[i + 2]-88)/442);
+                    if (Math.hypot(imageData.data[i]-112, imageData.data[i + 1]-158,imageData.data[i + 2]-88)/442<threshold)
+                    {
+                        imageData.data[i]=imageData2.data[i];
+                        imageData.data[i + 1]=imageData2.data[i+1];
+                        imageData.data[i + 2]=imageData2.data[i+2];
+                    }
+                }
+
+                
+                // Store the image data as an output frame
+                ctx.putImageData(imageData, 0, 0);
+                outputFramesBuffer[idx] = canvas.toDataURL("image/webp");
+
+                // Notify the finish of a frame
+                finishFrame();
+            };
+            img.src = input1FramesBuffer[idx];
+            img2.src= input2FramesBuffer[idx];
+
+
+        }
+    },
     
     fadeInOut: {
         setup: function() {
@@ -83,7 +141,6 @@ var effects = {
             var canvas = getCanvas(w, h);
             var ctx = canvas.getContext('2d');
             
-
             /*
              * TODO: Calculate the multiplier
              */
@@ -274,6 +331,7 @@ var effects = {
 
 
         }
+
     }
 };
 
@@ -304,6 +362,7 @@ function applyEffect(e) {
             $("#progress-modal").modal("hide");
             return;
     }
+    currentEffect=effects.chromaKey;
 
     // Set up the effect
     currentEffect.setup();

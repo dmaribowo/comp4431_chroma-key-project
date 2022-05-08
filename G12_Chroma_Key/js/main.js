@@ -2,7 +2,7 @@
 
 if (!(window.File && window.FileReader && window.FileList && window.Blob && Array.prototype.indexOf)) {
     alert("Your browser does not support all features that are needed in this assignment!\nPlease use another browser, e.g. Google Chrome.");
-    throw("Your browser does not support all features that are needed in this assignment!\nPlease use another browser, e.g. Google Chrome.");
+    throw ("Your browser does not support all features that are needed in this assignment!\nPlease use another browser, e.g. Google Chrome.");
 }
 
 // Great success! All the File APIs are supported
@@ -36,6 +36,13 @@ function startUpload(evt) {
     $("#file-select").wrap("<form>").closest('form').get(0).reset();
     $("#file-select").unwrap();
     $("#file-select").click();
+}
+
+function startUploadImage(evt) {
+    importingFor = evt.target;
+    $("#image-input").wrap("<form>").closest('form').get(0).reset();
+    $("#image-input").unwrap();
+    $("#image-input").click();
 }
 
 // Import the video as frames, store the result in the frames buffer
@@ -152,6 +159,38 @@ function changeVideo(event) {
     }
 }
 
+function changeImage(event) {
+    // The allowed video formats
+    var validFileType = ["image/jpeg", "image/png", "image/jpg"];
+
+    // Get the selected file
+    var files = event.target.files;
+    if (files.length >= 1) { // If the user clicked 'Cancel', files.length will be 0
+        var file = files[0]; // We only handle the first selected file and ignore the rest
+        // Check if the MIME type of the selected file is one of the allowed video formats
+        if (validFileType.indexOf(file.type) > -1) {
+            var reader = new FileReader();
+            // Set up the 'onloadedend' event handler for the file reader
+            // The event is triggered while the browser loaded the entire video file into
+            // the memory. The loaded file is stored in 'this.result'.
+            reader.addEventListener("load", () => {
+                const uploaded_image = reader.result;
+                var blob = new Blob([uploaded_image], { type: "image/jpeg" });
+                var urlCreator = window.URL || window.webkitURL;
+                var imageUrl = urlCreator.createObjectURL(blob);
+                $("#input-image-2").attr("src", imageUrl);
+
+            });
+            // Start reading in the selected file, in the format of 'array buffer'
+            reader.readAsArrayBuffer(file);
+
+
+        } else {
+            alert("Not a valid image file!");
+        }
+    }
+}
+
 // Capture the current frame as an image in the 'webp' format.
 // If a buffer is passed in using the second parameter,
 // the captured frame is added to the back of that buffer.
@@ -160,6 +199,7 @@ function captureFrame(video, resultBuffer) {
     // Create a canvas for making the frame image
     var w = video.videoWidth;
     var h = video.videoHeight;
+    console.log(w + " " + h);
 
     // The vide is not ready
     if (video.readyState == 0 || w == 0 || h == 0)
@@ -182,6 +222,24 @@ function captureFrame(video, resultBuffer) {
     return result;
 }
 
+// function captureImage(image) {
+//     // Create a canvas for making the frame image
+//     var w = image.width;
+//     var h = image.height;
+
+
+//     var canvas = getCanvas(w, h);
+//     var ctx = canvas.getContext('2d');
+
+//     // Draw the current frame displayed onto the temporary canvas context
+//     ctx.drawImage(image, 0, 0, w, h);
+
+//     var result = canvas.toDataURL("image/webp");
+
+
+//     return result;
+// }
+
 // Handler of video timechanged event
 function updateFrames(evt) {
     var target = evt.target;
@@ -192,11 +250,9 @@ function updateFrames(evt) {
     var targetFrameDisplay = null
     if ($(target).attr("id") === "input-video-1") {
         targetFrameDisplay = $("#input-video-1-frame");
-    }
-    else if ($(target).attr("id") === "input-video-2") {
+    } else if ($(target).attr("id") === "input-video-2") {
         targetFrameDisplay = $("#input-video-2-frame");
-    }
-    else if ($(target).attr("id") === "output-video") {
+    } else if ($(target).attr("id") === "output-video") {
         targetFrameDisplay = $("#output-video-frame");
     }
 
@@ -254,6 +310,8 @@ $(function() {
     $("#play-both").on("click", playBoth);
     $('a.dropdown-item').on("click", changeTabs);
     $("#apply-effect").on("click", applyEffect);
-    $("#cancel-processing").on("click", function() {stopProcessingFlag = true;});
+    $("#cancel-processing").on("click", function() { stopProcessingFlag = true; });
     $("input[type=checkbox]").bootstrapToggle();
+    $("#image-input").on("change", changeImage);
+    $("#change-input-image-2").on("click", startUploadImage);
 });

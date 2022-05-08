@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="bootstrap/bootstrap4-toggle.min.css">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
-    
+
     <title>Group 12--Chroma Key project</title>
 
     <style>
@@ -45,9 +45,12 @@
             -o-transition: none;
             transition: none;
         }
-        .toggle { height: 38px !important;
-        width: 50px; }
-
+        
+        .toggle {
+            height: 38px !important;
+            width: 50px;
+        }
+        
         img {
             border: 0
         }
@@ -101,56 +104,65 @@
 
                     <!-- Input 2 -->
                     <div class="tab-pane" id="input-video-2-tab">
-                        <ul class="nav nav-tabs nav-fill">
+                        <!-- <ul class="nav nav-tabs nav-fill">
                             <li class="nav-item">
                                 <a class="nav-link active" href="#input-bg-video-tab" data-toggle="tab">Input Background Video</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="#input-bg-image-tab" data-toggle="tab">Input Background Image</a>
                             </li>
-                        </ul>
+                        </ul> -->
+                        <ul class="nav nav-tabs nav-fill">
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#"> <span class="title">Choose</span>
+                                    <span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item effect-category" href="#input-bg-video-tab" data-toggle="tab">Video</a></li>
+                                    <li><a class="dropdown-item effect-category" href="#input-bg-image-tab" data-toggle="tab">Image</a></li>
+                            </li>
+                            </ul>
 
-                        <div class="tab-content">
+                            <div class="tab-content">
 
-                            <!-- Input Background Video -->
-                            <div class="tab-pane" id="input-bg-video-tab">
-                                <div class="row">
-                                    <div class="col mt-3">
-                                        <h5>Background Video</h5>
-                                        <video id="input-video-2" width="320px" height="180px" controls preload="auto"></video>
+                                <!-- Input Background Video -->
+                                <div class="tab-pane" id="input-bg-video-tab">
+                                    <div class="row">
+                                        <div class="col mt-3">
+                                            <h5>Background Video</h5>
+                                            <video id="input-video-2" width="320px" height="180px" controls preload="auto"></video>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="row">
+                                        <div class="col">
+                                            <h5>Background Video Frame</h5>
+                                            <img id="input-video-2-frame" width="320px" height="180px">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col mt-3">
+                                            <button class="btn btn-info btn-block" id="change-input-video-2">Change Background Video</button>
+                                        </div>
                                     </div>
                                 </div>
-                                <hr>
-                                <div class="row">
-                                    <div class="col">
-                                        <h5>Background Video Frame</h5>
-                                        <img id="input-video-2-frame" width="320px" height="180px">
+
+                                <!-- Input Background Image -->
+                                <div class="tab-pane" id="input-bg-image-tab">
+                                    <div class="row">
+                                        <div class="col mt-3">
+                                            <h5>Background Image</h5>
+                                            <img id="input-image-2" width="320px" height="180px"></img>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="row">
+                                        <div class="col mt-3">
+                                            <button class="btn btn-info btn-block" id="change-input-image-2">Change Background Image</button>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="col mt-3">
-                                        <button class="btn btn-info btn-block" id="change-input-video-2">Change Background Video</button>
-                                    </div>
-                                </div>
+
                             </div>
-
-                            <!-- Input Background Image -->
-                            <div class="tab-pane" id="input-bg-image-tab">
-                                <div class="row">
-                                    <div class="col mt-3">
-                                        <h5>Background Image</h5>
-                                        <img id="input-image-2" width="320px" height="180px"></img>
-                                    </div>
-                                </div>
-                                <hr>
-                                <div class="row">
-                                    <div class="col mt-3">
-                                        <button class="btn btn-info btn-block" id="change-input-image-2">Change Background Image</button>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
                     </div>
                 </div>
             </div>
@@ -159,7 +171,7 @@
                 <ul class="nav nav-tabs nav-fill">
                     <li class="nav-item"><a class="nav-link active" href="#chromaKey" role="tab" data-toggle="tab">Chroma Key</a></li>
                 </ul>
-            
+
 
                 <!-- Tab panes -->
                 <div class="tab-content">
@@ -174,7 +186,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
 
                         <div class="row mb-4">
                             <div class="col">
@@ -202,7 +214,7 @@
                                     </li>
                                 </ul>
                                 <div class="tab-content">
-                                <!-- Reverse -->
+                                    <!-- Reverse -->
                                     <div role="tabpanel" class="tab-pane active" id="reverse">
                                         <div class="container-fluid px-0">
                                             <p>No parameters available</p>
@@ -274,10 +286,10 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>   
+                                </div>
                             </div>
                         </div>
-                    </div>  
+                    </div>
                 </div>
                 <button class="btn btn-primary" id="apply-effect">Apply</button>
             </div>

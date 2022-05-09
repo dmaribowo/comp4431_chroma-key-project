@@ -102,52 +102,192 @@ var effects = {
                 /*
                  * TODO: Modify the pixels
                  */
-                if (useRGB)
-                {
-                    for (var i = 0; i < imageDataf.data.length; i += 4) 
-                    {
-                        if (Math.hypot(imageDataf.data[i] - 112, imageDataf.data[i + 1] - 158, imageDataf.data[i + 2] - 88) / 442 < threshold) 
-                        {   
+                if (useRGB) {
+                    for (var i = 0; i < imageDataf.data.length; i += 4) {
+                        if (Math.hypot(imageDataf.data[i] - 112, imageDataf.data[i + 1] - 158, imageDataf.data[i + 2] - 88) / 442 < threshold) {
                             imageDataf.data[i] = imageDatab.data[i];
                             imageDataf.data[i + 1] = imageDatab.data[i + 1];
                             imageDataf.data[i + 2] = imageDatab.data[i + 2];
                         }
-                }}
-                else
-                {
+                    }
+                } else {
                     for (var i = 0; i < inputData.data.length; i += 4) {
                         var r = inputData.data[i];
                         var g = inputData.data[i + 1];
                         var b = inputData.data[i + 2];
-                        var h=imageproc.fromRGBToHSV(r,g,b)["h"];
-                        var hue_diff=Math.max(h-90,90-h);
-                        if (hue_diff<180 && hue_diff/180<threshold)
-                        {
+                        var h = imageproc.fromRGBToHSV(r, g, b)["h"];
+                        var hue_diff = Math.max(h - 90, 90 - h);
+                        if (hue_diff < 180 && hue_diff / 180 < threshold) {
+                            imageDataf.data[i] = imageDatab.data[i];
+                            imageDataf.data[i + 1] = imageDatab.data[i + 1];
+                            imageDataf.data[i + 2] = imageDatab.data[i + 2];
+                        } else if (hue_diff >= 180 && (360 - hue_diff) / 180 < threshold) {
                             imageDataf.data[i] = imageDatab.data[i];
                             imageDataf.data[i + 1] = imageDatab.data[i + 1];
                             imageDataf.data[i + 2] = imageDatab.data[i + 2];
                         }
-                        else if (hue_diff>=180 && (360-hue_diff)/180<threshold)
-                        {
-                            imageDataf.data[i] = imageDatab.data[i];
-                            imageDataf.data[i + 1] = imageDatab.data[i + 1];
-                            imageDataf.data[i + 2] = imageDatab.data[i + 2];  
+                    }
+                    imageData = imageDataf;
+                    /*
+                     * TODO: Manage the image data buffer
+                     */
+                    if ($("#apply-blur-effect").prop("checked")) {
+                        imageDataBuffer.push(imageDataf);
+                        if (imageDataBuffer.length > blurFrames)
+                            imageDataBuffer.shift();
+
+                        imageData = new ImageData(w, h);
+                        /*
+                         * TODO: Combine the image data buffer into one frame
+                         */
+                        for (var i = 0; i < imageDataf.data.length; i += 4) {
+
+                            imageData.data[i] = 0;
+                            imageData.data[i + 1] = 0;
+                            imageData.data[i + 2] = 0;
+                            imageData.data[i + 3] = 255;
+
+                            var red = 0;
+                            var green = 0;
+                            var blue = 0;
+                            for (var j = 0; j < imageDataBuffer.length; ++j) {
+
+                                red += imageDataBuffer[j].data[i];
+                                green += imageDataBuffer[j].data[i + 1];
+                                blue += imageDataBuffer[j].data[i + 2];
+
+                            }
+                            imageData.data[i] = Math.round(red / imageDataBuffer.length);
+                            imageData.data[i + 1] = Math.round(green / imageDataBuffer.length);
+                            imageData.data[i + 2] = Math.round(blue / imageDataBuffer.length);
                         }
-                }
-                imageData = imageDataf;
+                    }
+                    if ($("#apply-blur-effect").prop("checked"))
+                        ctx.putImageData(imageData, 0, 0);
+                    else
+                        ctx.putImageData(imageDataf, 0, 0);
+                    outputFramesBuffer[idx] = canvas.toDataURL("image/webp");
+
+                    // Notify the finish of a frame
+                    finishFrame();
+                };
+                img.src = input1FramesBuffer[idx];
+                imgb.src = input2FramesBuffer[idx];
+
+
+            }
+        },
+
+        fadeInOut: {
+            setup: function() {
+                // Prepare the parameters
+                this.fadeInDuration = Math.round(parseFloat($("#fadeIn-duration").val()) * frameRate);
+                this.fadeOutDuration = Math.round(parseFloat($("#fadeOut-duration").val()) * frameRate);
+
+                // Initialize the duration of the output video
+                outputDuration = input1FramesBuffer.length;
+
+                // Prepare the array for storing the output frames
+                outputFramesBuffer = new Array(outputDuration);
+            },
+            process: function(idx) {
+                // Use a canvas to store frame content
+                var w = $("#input-video-1").get(0).videoWidth;
+                var h = $("#input-video-1").get(0).videoHeight;
+                var canvas = getCanvas(w, h);
+                var ctx = canvas.getContext('2d');
+
                 /*
-                 * TODO: Manage the image data buffer
+                 * TODO: Calculate the multiplier
                  */
-                if ($("#apply-blur-effect").prop("checked")) {
-                    imageDataBuffer.push(imageDataf);
+                var multiplier = 1;
+                if (idx < this.fadeInDuration) {
+                    // In the fade in region
+                    // multiplier = ...a value from 0 to 1...
+                    multiplier = idx / this.fadeInDuration;
+                } else if (idx > outputDuration - this.fadeOutDuration) {
+                    // In the fade out region
+                    // multiplier = ...a value from 1 to 0...
+                    multiplier = (outputDuration - idx) / this.fadeOutDuration;
+                }
+
+
+                // Modify the image content based on the multiplier
+                var img = new Image();
+                img.onload = function() {
+                    // Get the image data object
+                    ctx.drawImage(img, 0, 0);
+                    var imageData = ctx.getImageData(0, 0, w, h);
+
+
+                    /*
+                     * TODO: Modify the pixels
+                     */
+
+                    for (var i = 0; i < imageData.data.length; i += 4) {
+                        imageData.data[i] = imageData.data[i] * multiplier; // Red
+                        imageData.data[i + 1] = imageData.data[i + 1] * multiplier; // Green
+                        imageData.data[i + 2] = imageData.data[i + 2] * multiplier; // Blue\
+                    }
+
+
+                    // Store the image data as an output frame
+                    ctx.putImageData(imageData, 0, 0);
+                    outputFramesBuffer[idx] = canvas.toDataURL("image/webp");
+
+                    // Notify the finish of a frame
+                    finishFrame();
+                };
+                img.src = input1FramesBuffer[idx];
+            }
+        },
+
+        motionBlur: {
+            setup: function() {
+                // Prepare the parameters
+                this.blurFrames = parseInt($("#blur-frames").val());
+
+                // Initialize the duration of the output video
+                outputDuration = input1FramesBuffer.length;
+
+                // Prepare the array for storing the output frames
+                outputFramesBuffer = new Array(outputDuration);
+
+                // Prepare a buffer of frames (as ImageData)
+                this.imageDataBuffer = [];
+            },
+            process: function(idx, parameters) {
+                // Use a canvas to store frame content
+                var w = $("#input-video-1").get(0).videoWidth;
+                var h = $("#input-video-1").get(0).videoHeight;
+                var canvas = getCanvas(w, h);
+                var ctx = canvas.getContext('2d');
+
+                // Need to store them as local variables so that
+                // img.onload can access them
+                var imageDataBuffer = this.imageDataBuffer;
+                var blurFrames = this.blurFrames;
+
+                // Combine frames into one
+                var img = new Image();
+                img.onload = function() {
+                    // Get the image data object of the current frame
+                    ctx.drawImage(img, 0, 0);
+                    var imageData = ctx.getImageData(0, 0, w, h);
+                    /*
+                     * TODO: Manage the image data buffer
+                     */
+                    imageDataBuffer.push(imageData);
                     if (imageDataBuffer.length > blurFrames)
                         imageDataBuffer.shift();
 
+
+                    // Create a blank image data
                     imageData = new ImageData(w, h);
                     /*
                      * TODO: Combine the image data buffer into one frame
                      */
-                    for (var i = 0; i < imageDataf.data.length; i += 4) {
+                    for (var i = 0; i < imageData.data.length; i += 4) {
 
                         imageData.data[i] = 0;
                         imageData.data[i + 1] = 0;
@@ -168,166 +308,19 @@ var effects = {
                         imageData.data[i + 1] = Math.round(green / imageDataBuffer.length);
                         imageData.data[i + 2] = Math.round(blue / imageDataBuffer.length);
                     }
-                }
-                if ($("#apply-blur-effect").prop("checked"))
+
+
+                    // Store the image data as an output frame
                     ctx.putImageData(imageData, 0, 0);
-                else
-                    ctx.putImageData(imageDataf, 0, 0);
-                outputFramesBuffer[idx] = canvas.toDataURL("image/webp");
+                    outputFramesBuffer[idx] = canvas.toDataURL("image/webp");
 
-                // Notify the finish of a frame
-                finishFrame();
-            };
-            img.src = input1FramesBuffer[idx];
-            imgb.src = input2FramesBuffer[idx];
-
-
-        }
-    },
-
-    fadeInOut: {
-        setup: function() {
-            // Prepare the parameters
-            this.fadeInDuration = Math.round(parseFloat($("#fadeIn-duration").val()) * frameRate);
-            this.fadeOutDuration = Math.round(parseFloat($("#fadeOut-duration").val()) * frameRate);
-
-            // Initialize the duration of the output video
-            outputDuration = input1FramesBuffer.length;
-
-            // Prepare the array for storing the output frames
-            outputFramesBuffer = new Array(outputDuration);
-        },
-        process: function(idx) {
-            // Use a canvas to store frame content
-            var w = $("#input-video-1").get(0).videoWidth;
-            var h = $("#input-video-1").get(0).videoHeight;
-            var canvas = getCanvas(w, h);
-            var ctx = canvas.getContext('2d');
-
-            /*
-             * TODO: Calculate the multiplier
-             */
-            var multiplier = 1;
-            if (idx < this.fadeInDuration) {
-                // In the fade in region
-                // multiplier = ...a value from 0 to 1...
-                multiplier = idx / this.fadeInDuration;
-            } else if (idx > outputDuration - this.fadeOutDuration) {
-                // In the fade out region
-                // multiplier = ...a value from 1 to 0...
-                multiplier = (outputDuration - idx) / this.fadeOutDuration;
+                    // Notify the finish of a frame
+                    finishFrame();
+                };
+                img.src = input1FramesBuffer[idx];
             }
-
-
-            // Modify the image content based on the multiplier
-            var img = new Image();
-            img.onload = function() {
-                // Get the image data object
-                ctx.drawImage(img, 0, 0);
-                var imageData = ctx.getImageData(0, 0, w, h);
-
-
-                /*
-                 * TODO: Modify the pixels
-                 */
-
-                for (var i = 0; i < imageData.data.length; i += 4) {
-                    imageData.data[i] = imageData.data[i] * multiplier; // Red
-                    imageData.data[i + 1] = imageData.data[i + 1] * multiplier; // Green
-                    imageData.data[i + 2] = imageData.data[i + 2] * multiplier; // Blue\
-                }
-
-
-                // Store the image data as an output frame
-                ctx.putImageData(imageData, 0, 0);
-                outputFramesBuffer[idx] = canvas.toDataURL("image/webp");
-
-                // Notify the finish of a frame
-                finishFrame();
-            };
-            img.src = input1FramesBuffer[idx];
-        }
-    },
-
-    motionBlur: {
-        setup: function() {
-            // Prepare the parameters
-            this.blurFrames = parseInt($("#blur-frames").val());
-
-            // Initialize the duration of the output video
-            outputDuration = input1FramesBuffer.length;
-
-            // Prepare the array for storing the output frames
-            outputFramesBuffer = new Array(outputDuration);
-
-            // Prepare a buffer of frames (as ImageData)
-            this.imageDataBuffer = [];
         },
-        process: function(idx, parameters) {
-            // Use a canvas to store frame content
-            var w = $("#input-video-1").get(0).videoWidth;
-            var h = $("#input-video-1").get(0).videoHeight;
-            var canvas = getCanvas(w, h);
-            var ctx = canvas.getContext('2d');
-
-            // Need to store them as local variables so that
-            // img.onload can access them
-            var imageDataBuffer = this.imageDataBuffer;
-            var blurFrames = this.blurFrames;
-
-            // Combine frames into one
-            var img = new Image();
-            img.onload = function() {
-                // Get the image data object of the current frame
-                ctx.drawImage(img, 0, 0);
-                var imageData = ctx.getImageData(0, 0, w, h);
-                /*
-                 * TODO: Manage the image data buffer
-                 */
-                imageDataBuffer.push(imageData);
-                if (imageDataBuffer.length > blurFrames)
-                    imageDataBuffer.shift();
-
-
-                // Create a blank image data
-                imageData = new ImageData(w, h);
-                /*
-                 * TODO: Combine the image data buffer into one frame
-                 */
-                for (var i = 0; i < imageData.data.length; i += 4) {
-
-                    imageData.data[i] = 0;
-                    imageData.data[i + 1] = 0;
-                    imageData.data[i + 2] = 0;
-                    imageData.data[i + 3] = 255;
-
-                    var red = 0;
-                    var green = 0;
-                    var blue = 0;
-                    for (var j = 0; j < imageDataBuffer.length; ++j) {
-
-                        red += imageDataBuffer[j].data[i];
-                        green += imageDataBuffer[j].data[i + 1];
-                        blue += imageDataBuffer[j].data[i + 2];
-
-                    }
-                    imageData.data[i] = Math.round(red / imageDataBuffer.length);
-                    imageData.data[i + 1] = Math.round(green / imageDataBuffer.length);
-                    imageData.data[i + 2] = Math.round(blue / imageDataBuffer.length);
-                }
-
-
-                // Store the image data as an output frame
-                ctx.putImageData(imageData, 0, 0);
-                outputFramesBuffer[idx] = canvas.toDataURL("image/webp");
-
-                // Notify the finish of a frame
-                finishFrame();
-            };
-            img.src = input1FramesBuffer[idx];
-        }
-    },
-
+    }
 };
 
 // Handler for the "Apply" button click event

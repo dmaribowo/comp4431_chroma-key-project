@@ -326,9 +326,9 @@ var effects = {
             };
             img.src = input1FramesBuffer[idx];
         }
-    }
-    
-}};
+    },
+
+};
 
 // Handler for the "Apply" button click event
 function applyEffect(e) {
@@ -368,7 +368,31 @@ function applyEffect(e) {
             return;
         } else {
             // TODO: do image processing here
+            switch (selectedEffect) {
+                case "noeffect":
+                    processedBackgroundImage = inputImageData.data;
+                    break;
+                case "grayscale":
+                    var canvas = document.createElement("canvas");
+                    var imageData = canvas.getContext("2d").createImageData(inputImageData.width, inputImageData.height);
 
+                    processedBackgroundImage = imageproc.createBuffer(imageData);
+                    imageproc.grayscale(inputImageData, processedBackgroundImage);
+
+                    console.log(processedBackgroundImage);
+                    break;
+                case "blur":
+                    var canvas = document.createElement("canvas");
+                    var imageData = canvas.getContext("2d").createImageData(inputImageData.width, inputImageData.height);
+                    var size = parseInt($("#blur-kernel-size").val());
+                    console.log(size);
+
+                    processedBackgroundImage = imageproc.createBuffer(inputImageData);
+                    imageproc.blur(inputImageData, processedBackgroundImage, size);
+
+                    console.log(processedBackgroundImage);
+                    break;
+            }
         }
     }
 }

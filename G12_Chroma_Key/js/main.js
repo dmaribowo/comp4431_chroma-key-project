@@ -329,8 +329,13 @@ function updateProgressBar(target, newValue) {
 // Set up the event handlers for various GUI elements
 // when the page is fully loaded.
 $(function() {
-    var canvas = document.getElementById("canvas-image-2");
-    // canvas.style.display = "none";
+    $("#image-effect-dropdown").hide();
+    $("#bg-image-dropdown-item").on("click", function() {
+        $("#image-effect-dropdown").show();
+    })
+    $("#bg-video-dropdown-item").on("click", function() {
+        $("#image-effect-dropdown").hide();
+    })
     $("#input-video-1, #input-video-2, #output-video").on("timeupdate", updateFrames);
     $("#change-input-video-1, #change-input-video-2").on("click", startUpload);
     $("#file-select").on("change", changeVideo);

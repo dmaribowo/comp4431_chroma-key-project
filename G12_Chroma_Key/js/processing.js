@@ -374,8 +374,7 @@ var effects = {
 
 // Handler for the "Apply" button click event
 function applyEffect(e) {
-    $("#progress-modal").modal("show");
-    updateProgressBar("#effect-progress", 0);
+
 
     if (input1FramesBuffer.length == 0) {
         alert("Input foreground video!");
@@ -383,12 +382,48 @@ function applyEffect(e) {
     }
 
     // check background media
-    if (useBgVideo == true) {
+    if (useBgVideo) {
         if (input2FramesBuffer.length == 0) {
             alert("Input background video/image!");
             return;
         } else {
+            console.log("do chroma key video1...");
+            $("#progress-modal").modal("show");
+            updateProgressBar("#effect-progress", 0);
+            // Check which one is the actively selected effect
+            switch (selectedEffect) {
+                case "fadeInOut":
+                    currentEffect = effects.fadeInOut;
+                    break;
+                case "reverse":
+                    currentEffect = effects.reverse;
+                    break;
+                case "motionBlur":
+                    currentEffect = effects.motionBlur;
+                    break;
+                case "earthquake":
+                    currentEffect = effects.earthquake;
+                    break;
+                case "crossFade":
+                    currentEffect = effects.crossFade;
+                    break;
+                default:
+                    // Do nothing
+                    console.log("do nothing");
+                    $("#progress-modal").modal("hide");
+                    // return;
+            }
+            console.log("do chroma key video...");
             // TODO: do video processing here
+            currentEffect = effects.chromaKey;
+            // Set up the effect
+            currentEffect.setup();
+            //effects.chromaKey.setup();
+
+            // Start processing the frames
+            currentFrame = 0;
+            completedFrames = 0;
+            processFrame();
         }
     } else {
         if (inputImageData == null) {
@@ -400,35 +435,7 @@ function applyEffect(e) {
         }
     }
 
-    // Check which one is the actively selected effect
-    // switch (selectedEffect) {
-    //     case "fadeInOut":
-    //         currentEffect = effects.fadeInOut;
-    //         break;
-    //     case "reverse":
-    //         currentEffect = effects.reverse;
-    //         break;
-    //     case "motionBlur":
-    //         currentEffect = effects.motionBlur;
-    //         break;
-    //     case "earthquake":
-    //         currentEffect = effects.earthquake;
-    //         break;
-    //     case "crossFade":
-    //         currentEffect = effects.crossFade;
-    //         break;
-    //     default:
-    //         // Do nothing
-    //         $("#progress-modal").modal("hide");
-    //         return;
-    // }
-    currentEffect = effects.chromaKey;
-    // Set up the effect
-    currentEffect.setup();
-    //effects.chromaKey.setup();
 
-    // Start processing the frames
-    currentFrame = 0;
-    completedFrames = 0;
-    processFrame();
+
+
 }

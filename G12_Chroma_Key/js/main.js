@@ -8,7 +8,7 @@ if (!(window.File && window.FileReader && window.FileList && window.Blob && Arra
 // Great success! All the File APIs are supported
 
 var frameRate = 25; // We assume all video use 25 frames per second
-var selectedEffect = "reverse"; // The currently selected effect
+var selectedEffect = "noeffect"; // The currently selected effect
 var importingFor = null; // The current target for the import video process
 var importer = null; // The global video importer instance
 var importBuffer = []; // The frames buffer for importing video
@@ -17,6 +17,7 @@ var input2FramesBuffer = []; // The imported frames buffer for video 2
 var stopProcessingFlag = false; // True if stop processing is clicked
 var inputImageData = null;
 var useBgVideo = null;
+var useRGB = true;
 
 // Helper function for creating a standalone copy of the source buffer
 function copyBuffer(source) {
@@ -287,7 +288,29 @@ function updateFrames(evt) {
 }
 
 // Handler for tab changing.
-function changeTabs(e) {
+function changeTabsBackground(e) {
+    // The target is the drop down menu item of the tab
+    var target = $(e.target);
+
+    // Check if 'target' is actually an <a> element. If not, we need to
+    // find the <a> that is a parent of the current selected element.
+    if (target.prop("tagName") !== "A") {
+        target = target.parents("a");
+    }
+
+    // Show the tab and make the tab active
+    target.tab('show');
+    target.toggleClass("active");
+    target.parents(".nav-item").find(".nav-link").toggleClass("active");
+
+    // Change the tab title to relect which waveform is selected
+    target.parents("li").find("span.title").html(target.html());
+
+    console.log(useBgVideo);
+    e.preventDefault();
+}
+
+function changeTabsEffect(e) {
     // The target is the drop down menu item of the tab
     var target = $(e.target);
 
@@ -308,8 +331,40 @@ function changeTabs(e) {
     // Change the current operation in different tab
     selectedEffect = $(e.target).attr("href").substring(1);
 
+    console.log(selectedEffect);
+
     e.preventDefault();
 }
+
+function changeTabsRGB(e) {
+    // The target is the drop down menu item of the tab
+    var target = $(e.target);
+
+    // Check if 'target' is actually an <a> element. If not, we need to
+    // find the <a> that is a parent of the current selected element.
+    if (target.prop("tagName") !== "A") {
+        target = target.parents("a");
+    }
+
+    // Show the tab and make the tab active
+    target.tab('show');
+    target.toggleClass("active");
+    target.parents(".nav-item").find(".nav-link").toggleClass("active");
+
+    // Change the tab title to relect which waveform is selected
+    target.parents("li").find("span.title").html(target.html());
+
+    // Change the current operation in different tab
+    if ($(e.target).attr("href").substring(1) == "rgb")
+        useRGB = true;
+    else
+        useRGB = false;
+
+    console.log(useRGB);
+
+    e.preventDefault();
+}
+
 
 // Play both the input videos together with the output video
 function playBoth() {
@@ -342,7 +397,9 @@ $(function() {
     $("#change-input-video-1, #change-input-video-2").on("click", startUpload);
     $("#file-select").on("change", changeVideo);
     $("#play-both").on("click", playBoth);
-    $('a.dropdown-item').on("click", changeTabs);
+    $('.background-item').on("click", changeTabsBackground);
+    $('.color-item').on("click", changeTabsRGB);
+    $('.image-effect-item').on("click", changeTabsEffect);
     $("#apply-effect").on("click", applyEffect);
     $("#cancel-processing").on("click", function() { stopProcessingFlag = true; });
     $("input[type=checkbox]").bootstrapToggle();

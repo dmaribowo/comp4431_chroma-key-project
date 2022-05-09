@@ -390,29 +390,8 @@ function applyEffect(e) {
             console.log("do chroma key video1...");
             $("#progress-modal").modal("show");
             updateProgressBar("#effect-progress", 0);
-            // Check which one is the actively selected effect
-            switch (selectedEffect) {
-                case "fadeInOut":
-                    currentEffect = effects.fadeInOut;
-                    break;
-                case "reverse":
-                    currentEffect = effects.reverse;
-                    break;
-                case "motionBlur":
-                    currentEffect = effects.motionBlur;
-                    break;
-                case "earthquake":
-                    currentEffect = effects.earthquake;
-                    break;
-                case "crossFade":
-                    currentEffect = effects.crossFade;
-                    break;
-                default:
-                    // Do nothing
-                    console.log("do nothing");
-                    $("#progress-modal").modal("hide");
-                    // return;
-            }
+
+
             console.log("do chroma key video...");
             // TODO: do video processing here
             currentEffect = effects.chromaKey;

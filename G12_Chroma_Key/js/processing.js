@@ -4,7 +4,7 @@ var outputDuration = 0; // The duration of the output video
 var outputFramesBuffer = []; // The frames buffer for the output video
 var currentFrame = 0; // The current frame being processed
 var completedFrames = 0; // The number of completed frames
-var threshold=0;
+var threshold = 0;
 
 // This function starts the processing of an individual frame.
 function processFrame() {
@@ -29,8 +29,7 @@ function finishFrame() {
         } else {
             setTimeout(processFrame, 1);
         }
-    }
-    else {
+    } else {
         buildVideo(outputFramesBuffer, function(resultVideo) {
             $("#output-video").attr("src", URL.createObjectURL(resultVideo));
             updateProgressBar("#effect-progress", 100);
@@ -66,14 +65,14 @@ var effects = {
     },
     chromaKey: {
         setup: function() {
-            threshold=$("#colorKey-threshold").val();
+            threshold = $("#colorKey-threshold").val();
             // Initialize the duration of the output video
             outputDuration = input1FramesBuffer.length;
 
             // Prepare the array for storing the output frames
             outputFramesBuffer = new Array(outputDuration);
             this.blurFrames = parseInt($("#blur-frame-num").val());
-            this.imageDataBuffer = []; 
+            this.imageDataBuffer = [];
 
         },
         process: function(idx) {
@@ -92,8 +91,8 @@ var effects = {
             var imageDataBuffer = this.imageDataBuffer;
 
             var img = new Image();
-            var imgb=new Image();
-            
+            var imgb = new Image();
+
             img.onload = function() {
                 // Get the image data object
                 ctx.drawImage(img, 0, 0);
@@ -102,52 +101,50 @@ var effects = {
                 var imageDatab = ctxb.getImageData(0, 0, wb, hb);
                 /*
                  * TODO: Modify the pixels
-                 */ 
-                
-                console.log(blurFrames) ;
-                console.log(imageDataBuffer) ;       
+                 */
+
+                console.log(blurFrames);
+                console.log(imageDataBuffer);
                 for (var i = 0; i < imageDataf.data.length; i += 4) {
-                    if (Math.hypot(imageDataf.data[i]-112, imageDataf.data[i + 1]-158,imageDataf.data[i + 2]-88)/442<threshold)
-                    {
-                        imageDataf.data[i]=imageDatab.data[i];
-                        imageDataf.data[i + 1]=imageDatab.data[i+1];
-                        imageDataf.data[i + 2]=imageDatab.data[i+2];
+                    if (Math.hypot(imageDataf.data[i] - 112, imageDataf.data[i + 1] - 158, imageDataf.data[i + 2] - 88) / 442 < threshold) {
+                        imageDataf.data[i] = imageDatab.data[i];
+                        imageDataf.data[i + 1] = imageDatab.data[i + 1];
+                        imageDataf.data[i + 2] = imageDatab.data[i + 2];
                     }
                 }
                 imageData = imageDataf;
                 /*
                  * TODO: Manage the image data buffer
                  */
-                if ($("#apply-blur-effect").prop("checked"))
-                {   
+                if ($("#apply-blur-effect").prop("checked")) {
                     imageDataBuffer.push(imageDataf);
-                    if(imageDataBuffer.length > blurFrames)
+                    if (imageDataBuffer.length > blurFrames)
                         imageDataBuffer.shift();
-                    
+
                     imageData = new ImageData(w, h);
                     /*
-                    * TODO: Combine the image data buffer into one frame
-                    */
+                     * TODO: Combine the image data buffer into one frame
+                     */
                     for (var i = 0; i < imageDataf.data.length; i += 4) {
 
                         imageData.data[i] = 0;
-                        imageData.data[i+1] = 0;
-                        imageData.data[i+2] = 0;
-                        imageData.data[i+3] = 255;
-                    
-                        var red=0;
-                        var green=0;
-                        var blue=0;
+                        imageData.data[i + 1] = 0;
+                        imageData.data[i + 2] = 0;
+                        imageData.data[i + 3] = 255;
+
+                        var red = 0;
+                        var green = 0;
+                        var blue = 0;
                         for (var j = 0; j < imageDataBuffer.length; ++j) {
-                    
+
                             red += imageDataBuffer[j].data[i];
-                            green += imageDataBuffer[j].data[i+1];
-                            blue += imageDataBuffer[j].data[i+2];
-                    
+                            green += imageDataBuffer[j].data[i + 1];
+                            blue += imageDataBuffer[j].data[i + 2];
+
                         }
-                        imageData.data[i] = Math.round(red/imageDataBuffer.length);
-                        imageData.data[i+1] = Math.round(green/imageDataBuffer.length);
-                        imageData.data[i+2] = Math.round(blue/imageDataBuffer.length);
+                        imageData.data[i] = Math.round(red / imageDataBuffer.length);
+                        imageData.data[i + 1] = Math.round(green / imageDataBuffer.length);
+                        imageData.data[i + 2] = Math.round(blue / imageDataBuffer.length);
                     }
                 }
                 if ($("#apply-blur-effect").prop("checked"))
@@ -160,12 +157,12 @@ var effects = {
                 finishFrame();
             };
             img.src = input1FramesBuffer[idx];
-            imgb.src= input2FramesBuffer[idx];
+            imgb.src = input2FramesBuffer[idx];
 
 
         }
     },
-    
+
     fadeInOut: {
         setup: function() {
             // Prepare the parameters
@@ -184,7 +181,7 @@ var effects = {
             var h = $("#input-video-1").get(0).videoHeight;
             var canvas = getCanvas(w, h);
             var ctx = canvas.getContext('2d');
-            
+
             /*
              * TODO: Calculate the multiplier
              */
@@ -192,12 +189,11 @@ var effects = {
             if (idx < this.fadeInDuration) {
                 // In the fade in region
                 // multiplier = ...a value from 0 to 1...
-                multiplier = idx/this.fadeInDuration;
-            }
-            else if (idx > outputDuration - this.fadeOutDuration) {
+                multiplier = idx / this.fadeInDuration;
+            } else if (idx > outputDuration - this.fadeOutDuration) {
                 // In the fade out region
                 // multiplier = ...a value from 1 to 0...
-                multiplier = (outputDuration-idx)/this.fadeOutDuration;
+                multiplier = (outputDuration - idx) / this.fadeOutDuration;
             }
 
 
@@ -211,15 +207,15 @@ var effects = {
 
                 /*
                  * TODO: Modify the pixels
-                 */               
+                 */
 
                 for (var i = 0; i < imageData.data.length; i += 4) {
-                    imageData.data[i]     = imageData.data[i]*multiplier; // Red
-                    imageData.data[i + 1] = imageData.data[i+1]*multiplier; // Green
-                    imageData.data[i + 2] = imageData.data[i+2]*multiplier; // Blue\
+                    imageData.data[i] = imageData.data[i] * multiplier; // Red
+                    imageData.data[i + 1] = imageData.data[i + 1] * multiplier; // Green
+                    imageData.data[i + 2] = imageData.data[i + 2] * multiplier; // Blue\
                 }
 
-                
+
                 // Store the image data as an output frame
                 ctx.putImageData(imageData, 0, 0);
                 outputFramesBuffer[idx] = canvas.toDataURL("image/webp");
@@ -230,7 +226,7 @@ var effects = {
             img.src = input1FramesBuffer[idx];
         }
     },
-    
+
     motionBlur: {
         setup: function() {
             // Prepare the parameters
@@ -267,9 +263,9 @@ var effects = {
                  * TODO: Manage the image data buffer
                  */
                 imageDataBuffer.push(imageData);
-                if(imageDataBuffer.length > blurFrames)
+                if (imageDataBuffer.length > blurFrames)
                     imageDataBuffer.shift();
-                
+
 
                 // Create a blank image data
                 imageData = new ImageData(w, h);
@@ -279,23 +275,23 @@ var effects = {
                 for (var i = 0; i < imageData.data.length; i += 4) {
 
                     imageData.data[i] = 0;
-                    imageData.data[i+1] = 0;
-                    imageData.data[i+2] = 0;
-                    imageData.data[i+3] = 255;
-                
-                    var red=0;
-                    var green=0;
-                    var blue=0;
+                    imageData.data[i + 1] = 0;
+                    imageData.data[i + 2] = 0;
+                    imageData.data[i + 3] = 255;
+
+                    var red = 0;
+                    var green = 0;
+                    var blue = 0;
                     for (var j = 0; j < imageDataBuffer.length; ++j) {
-                
+
                         red += imageDataBuffer[j].data[i];
-                        green += imageDataBuffer[j].data[i+1];
-                        blue += imageDataBuffer[j].data[i+2];
-                
+                        green += imageDataBuffer[j].data[i + 1];
+                        blue += imageDataBuffer[j].data[i + 2];
+
                     }
-                    imageData.data[i] = Math.round(red/imageDataBuffer.length);
-                    imageData.data[i+1] = Math.round(green/imageDataBuffer.length);
-                    imageData.data[i+2] = Math.round(blue/imageDataBuffer.length);
+                    imageData.data[i] = Math.round(red / imageDataBuffer.length);
+                    imageData.data[i + 1] = Math.round(green / imageDataBuffer.length);
+                    imageData.data[i + 2] = Math.round(blue / imageDataBuffer.length);
                 }
 
 
@@ -326,7 +322,7 @@ var effects = {
             var h = $("#input-video-1").get(0).videoHeight;
             var canvas = getCanvas(w, h);
             var ctx = canvas.getContext('2d');
-            
+
 
             /*
              * TODO: Calculate the placement of the output frame
@@ -336,7 +332,7 @@ var effects = {
             // Draw the input frame in a new location and size
             var img = new Image();
             img.onload = function() {
-            
+
 
                 /*
                  * TODO: Draw the input frame appropriately
@@ -381,29 +377,52 @@ function applyEffect(e) {
     $("#progress-modal").modal("show");
     updateProgressBar("#effect-progress", 0);
 
-    // Check which one is the actively selected effect
-    switch(selectedEffect) {
-        case "fadeInOut":
-            currentEffect = effects.fadeInOut;
-            break;
-        case "reverse":
-            currentEffect = effects.reverse;
-            break;
-        case "motionBlur":
-            currentEffect = effects.motionBlur;
-            break;
-        case "earthquake":
-            currentEffect = effects.earthquake;
-            break;
-        case "crossFade":
-            currentEffect = effects.crossFade;
-            break;
-        default:
-            // Do nothing
-            $("#progress-modal").modal("hide");
-            return;
+    if (input1FramesBuffer.length == 0) {
+        alert("Input foreground video!");
+        return;
     }
-   currentEffect=effects.chromaKey;
+
+    // check background media
+    if (useBgVideo == true) {
+        if (input2FramesBuffer.length == 0) {
+            alert("Input background video/image!");
+            return;
+        } else {
+            // TODO: do video processing here
+        }
+    } else {
+        if (inputImageData == null) {
+            alert("Input background video/image!");
+            return;
+        } else {
+            // TODO: do image processing here
+
+        }
+    }
+
+    // Check which one is the actively selected effect
+    // switch (selectedEffect) {
+    //     case "fadeInOut":
+    //         currentEffect = effects.fadeInOut;
+    //         break;
+    //     case "reverse":
+    //         currentEffect = effects.reverse;
+    //         break;
+    //     case "motionBlur":
+    //         currentEffect = effects.motionBlur;
+    //         break;
+    //     case "earthquake":
+    //         currentEffect = effects.earthquake;
+    //         break;
+    //     case "crossFade":
+    //         currentEffect = effects.crossFade;
+    //         break;
+    //     default:
+    //         // Do nothing
+    //         $("#progress-modal").modal("hide");
+    //         return;
+    // }
+    currentEffect = effects.chromaKey;
     // Set up the effect
     currentEffect.setup();
     //effects.chromaKey.setup();

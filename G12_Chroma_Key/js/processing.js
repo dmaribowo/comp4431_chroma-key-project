@@ -305,71 +305,7 @@ var effects = {
             img.src = input1FramesBuffer[idx];
         }
     },
-    earthquake: {
-        setup: function() {
-            // Prepare the parameters
-            this.strength = parseInt($("#earthquake-strength").val());
 
-            // Initialize the duration of the output video
-            outputDuration = input1FramesBuffer.length;
-
-            // Prepare the array for storing the output frames
-            outputFramesBuffer = new Array(outputDuration);
-        },
-        process: function(idx, parameters) {
-            // Use a canvas to store frame content
-            var w = $("#input-video-1").get(0).videoWidth;
-            var h = $("#input-video-1").get(0).videoHeight;
-            var canvas = getCanvas(w, h);
-            var ctx = canvas.getContext('2d');
-
-
-            /*
-             * TODO: Calculate the placement of the output frame
-             */
-
-
-            // Draw the input frame in a new location and size
-            var img = new Image();
-            img.onload = function() {
-
-
-                /*
-                 * TODO: Draw the input frame appropriately
-                 */
-
-
-                outputFramesBuffer[idx] = canvas.toDataURL("image/webp");
-
-                // Notify the finish of a frame
-                finishFrame();
-            };
-            img.src = input1FramesBuffer[idx];
-        }
-    },
-    crossFade: {
-        setup: function() {
-            // Prepare the parameters
-            this.crossFadeDuration =
-                Math.round(parseFloat($("#crossFade-duration").val()) * frameRate);
-
-            /*
-             * TODO: Prepare the duration and output buffer
-             */
-
-
-        },
-        process: function(idx) {
-
-
-            /*
-             * TODO: Make the transition work
-             */
-
-
-        }
-
-    }
 };
 
 // Handler for the "Apply" button click event
@@ -410,7 +346,31 @@ function applyEffect(e) {
             return;
         } else {
             // TODO: do image processing here
+            switch (selectedEffect) {
+                case "noeffect":
+                    processedBackgroundImage = inputImageData.data;
+                    break;
+                case "grayscale":
+                    var canvas = document.createElement("canvas");
+                    var imageData = canvas.getContext("2d").createImageData(inputImageData.width, inputImageData.height);
 
+                    processedBackgroundImage = imageproc.createBuffer(imageData);
+                    imageproc.grayscale(inputImageData, processedBackgroundImage);
+
+                    console.log(processedBackgroundImage);
+                    break;
+                case "blur":
+                    var canvas = document.createElement("canvas");
+                    var imageData = canvas.getContext("2d").createImageData(inputImageData.width, inputImageData.height);
+                    var size = parseInt($("#blur-kernel-size").val());
+                    console.log(size);
+
+                    processedBackgroundImage = imageproc.createBuffer(inputImageData);
+                    imageproc.blur(inputImageData, processedBackgroundImage, size);
+
+                    console.log(processedBackgroundImage);
+                    break;
+            }
         }
     }
 

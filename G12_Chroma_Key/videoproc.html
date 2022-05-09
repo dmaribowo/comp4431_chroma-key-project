@@ -164,7 +164,8 @@
                                     <hr>
                                     <div class="row">
                                         <div class="col">
-                                            <div id="canvas-image-2"></div>
+                                            <canvas id="canvas-image-2" style="display:none"></canvas>
+                                            <canvas id="output-canvas" style="display:none"></canvas>
                                         </div>
                                     </div>
                                     <div class="row">
@@ -243,7 +244,7 @@
 
                         <div class="row mb-4" id="image-effect-dropdown" style="display:none">
                             <div class="col">
-                                <label for="Extra Effect">Extra Effects:</label>
+                                <label for="Extra Effect">Extra Image Effects:</label>
                                 <ul class="nav nav-tabs nav-fill">
                                     <li class="nav-item dropdown">
                                         <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#"> <span class="title">No effect</span>
@@ -469,6 +470,9 @@
     <script src="bootstrap/bootstrap.bundle.min.js"></script>
     <script src="bootstrap/bootstrap4-toggle.min.js"></script>
 
+    <script src="js/imageproc.js"></script>
+    <script src="js/base.js"></script>
+    <script src="js/blur.js"></script>
     <script src="js/VideoFrame.min.js"></script>
     <script src="js/whammy.js"></script>
     <script src="js/main.js"></script>

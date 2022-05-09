@@ -63,7 +63,7 @@ var effects = {
             finishFrame();
         }
     },
-    chromaKey: {
+    chromaKeyVideo: {
         setup: function() {
             threshold = $("#colorKey-threshold").val();
             // Initialize the duration of the output video
@@ -102,15 +102,37 @@ var effects = {
                 /*
                  * TODO: Modify the pixels
                  */
-
-                console.log(blurFrames);
-                console.log(imageDataBuffer);
-                for (var i = 0; i < imageDataf.data.length; i += 4) {
-                    if (Math.hypot(imageDataf.data[i] - 112, imageDataf.data[i + 1] - 158, imageDataf.data[i + 2] - 88) / 442 < threshold) {
-                        imageDataf.data[i] = imageDatab.data[i];
-                        imageDataf.data[i + 1] = imageDatab.data[i + 1];
-                        imageDataf.data[i + 2] = imageDatab.data[i + 2];
-                    }
+                if (useRGB)
+                {
+                    for (var i = 0; i < imageDataf.data.length; i += 4) 
+                    {
+                        if (Math.hypot(imageDataf.data[i] - 112, imageDataf.data[i + 1] - 158, imageDataf.data[i + 2] - 88) / 442 < threshold) 
+                        {   
+                            imageDataf.data[i] = imageDatab.data[i];
+                            imageDataf.data[i + 1] = imageDatab.data[i + 1];
+                            imageDataf.data[i + 2] = imageDatab.data[i + 2];
+                        }
+                }}
+                else
+                {
+                    for (var i = 0; i < inputData.data.length; i += 4) {
+                        var r = inputData.data[i];
+                        var g = inputData.data[i + 1];
+                        var b = inputData.data[i + 2];
+                        var h=imageproc.fromRGBToHSV(r,g,b)["h"];
+                        var hue_diff=Math.max(h-90,90-h);
+                        if (hue_diff<180 && hue_diff/180<threshold)
+                        {
+                            imageDataf.data[i] = imageDatab.data[i];
+                            imageDataf.data[i + 1] = imageDatab.data[i + 1];
+                            imageDataf.data[i + 2] = imageDatab.data[i + 2];
+                        }
+                        else if (hue_diff>=180 && (360-hue_diff)/180<threshold)
+                        {
+                            imageDataf.data[i] = imageDatab.data[i];
+                            imageDataf.data[i + 1] = imageDatab.data[i + 1];
+                            imageDataf.data[i + 2] = imageDatab.data[i + 2];  
+                        }
                 }
                 imageData = imageDataf;
                 /*
@@ -330,7 +352,7 @@ function applyEffect(e) {
 
             console.log("do chroma key video...");
             // TODO: do video processing here
-            currentEffect = effects.chromaKey;
+            currentEffect = effects.chromaKeyVideo;
             // Set up the effect
             currentEffect.setup();
             //effects.chromaKey.setup();
@@ -373,8 +395,4 @@ function applyEffect(e) {
             }
         }
     }
-
-
-
-
 }

@@ -16,6 +16,7 @@ var input1FramesBuffer = []; // The imported frames buffer for video 1
 var input2FramesBuffer = []; // The imported frames buffer for video 2
 var stopProcessingFlag = false; // True if stop processing is clicked
 var inputImageData = null;
+var useBgVideo = null;
 
 // Helper function for creating a standalone copy of the source buffer
 function copyBuffer(source) {
@@ -329,12 +330,13 @@ function updateProgressBar(target, newValue) {
 // Set up the event handlers for various GUI elements
 // when the page is fully loaded.
 $(function() {
-    $("#image-effect-dropdown").hide();
     $("#bg-image-dropdown-item").on("click", function() {
         $("#image-effect-dropdown").show();
+        useBgVideo = false;
     })
     $("#bg-video-dropdown-item").on("click", function() {
         $("#image-effect-dropdown").hide();
+        useBgVideo = true;
     })
     $("#input-video-1, #input-video-2, #output-video").on("timeupdate", updateFrames);
     $("#change-input-video-1, #change-input-video-2").on("click", startUpload);

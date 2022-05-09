@@ -15,6 +15,7 @@ var importBuffer = []; // The frames buffer for importing video
 var input1FramesBuffer = []; // The imported frames buffer for video 1
 var input2FramesBuffer = []; // The imported frames buffer for video 2
 var stopProcessingFlag = false; // True if stop processing is clicked
+var inputImageData = null;
 
 // Helper function for creating a standalone copy of the source buffer
 function copyBuffer(source) {
@@ -178,7 +179,31 @@ function changeImage(event) {
                 var blob = new Blob([uploaded_image], { type: "image/jpeg" });
                 var urlCreator = window.URL || window.webkitURL;
                 var imageUrl = urlCreator.createObjectURL(blob);
+                var image = new Image();
+                image.onload = function() {
+                    $("#canvas-image-2").empty();
+                    var canvas = document.createElement("canvas");
+                    canvas.width = image.width;
+                    canvas.height = image.height;
+                    var ctx = canvas.getContext("2d");
+                    $("#canvas-image-2").append(canvas);
+                    ctx.drawImage(image, 0, 0);
+                    inputImageData = ctx.getImageData(0, 0,
+                        ctx.canvas.clientWidth, ctx.canvas.clientHeight);
+                    console.log(inputImageData);
+                    $("#canvas-image-2").hide();
+                }
+                image.src = imageUrl;
+                // var button = document.createElement("button");
+                // button.onclick = function() {
+                //     console.log(canvas.getImageData(0, 0,
+                //         image.width, image.height));
+                // }
+                // document.getElementById("btn").appendChild(button);
                 $("#input-image-2").attr("src", imageUrl);
+
+                console.log(uploaded_image);
+                console.log(document.getElementById("input-image-2").getAttribute("src"));
 
             });
             // Start reading in the selected file, in the format of 'array buffer'
@@ -304,6 +329,8 @@ function updateProgressBar(target, newValue) {
 // Set up the event handlers for various GUI elements
 // when the page is fully loaded.
 $(function() {
+    var canvas = document.getElementById("canvas-image-2");
+    // canvas.style.display = "none";
     $("#input-video-1, #input-video-2, #output-video").on("timeupdate", updateFrames);
     $("#change-input-video-1, #change-input-video-2").on("click", startUpload);
     $("#file-select").on("change", changeVideo);

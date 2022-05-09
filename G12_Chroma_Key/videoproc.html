@@ -122,8 +122,8 @@
                                 <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#"> <span class="title">Choose</span>
                                     <span class="caret"></span></a>
                                 <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item effect-category" href="#input-bg-video-tab" data-toggle="tab">Video</a></li>
-                                    <li><a class="dropdown-item effect-category" href="#input-bg-image-tab" data-toggle="tab">Image</a></li>
+                                    <li><a class="dropdown-item effect-category" href="#input-bg-video-tab" data-toggle="tab" id="bg-video-dropdown-item">Video</a></li>
+                                    <li><a class="dropdown-item effect-category" href="#input-bg-image-tab" data-toggle="tab" id="bg-image-dropdown-item">Image</a></li>
                             </li>
                             </ul>
 
@@ -217,27 +217,30 @@
                                     <input class="form-control toggle-control" id="blur-effect" type="checkbox" />
                                 </div>
                             </div>
-                            <div class="col-6">   
+                            <div class="col-6">
                                 <label for="blur-frames">Frames:</label>
                                 <div class="input-group">
                                     <input class="form-control" id="blur-frame-num" type="number" value="2" min="2" step="1">
                                 </div>
-                            </div>   
+                            </div>
                         </div>
-                        
-                        <div class="row mb-4">
+
+                        <div class="row mb-4" id="image-effect-dropdown" style="display:none">
                             <div class="col">
                                 <label for="Extra Effect">Extra Effects:</label>
                                 <ul class="nav nav-tabs nav-fill">
                                     <li class="nav-item dropdown">
-                                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#"> <span class="title">Reverse</span>
+                                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#"> <span class="title">No effect</span>
                                             <span class="caret"></span></a>
                                         <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item effect-category" href="#reverse" data-toggle="tab">Reverse</a></li>
+                                            <!-- <li><a class="dropdown-item effect-category" href="#reverse" data-toggle="tab">Reverse</a></li>
                                             <li><a class="dropdown-item effect-category" href="#fadeInOut" data-toggle="tab">Fade In and Out</a></li>
                                             <li><a class="dropdown-item effect-category" href="#motionBlur" data-toggle="tab">Motion Blur</a></li>
                                             <li><a class="dropdown-item effect-category" href="#earthquake" data-toggle="tab">Earthquake</a></li>
-                                            <li><a class="dropdown-item effect-category" href="#crossFade" data-toggle="tab">Cross Fade</a></li>
+                                            <li><a class="dropdown-item effect-category" href="#crossFade" data-toggle="tab">Cross Fade</a></li> -->
+                                            <li><a class="dropdown-item effect-category" href="#noeffect" data-toggle="tab">No effect</a></li>
+                                            <li><a class="dropdown-item effect-category" href="#grayscale" data-toggle="tab">Grayscale</a></li>
+                                            <li><a class="dropdown-item effect-category" href="#blur" data-toggle="tab">Blur</a></li>
                                         </ul>
                                     </li>
                                 </ul>
@@ -309,6 +312,36 @@
                                                     <div class="input-group">
                                                         <input class="form-control" id="crossFade-duration" type="number" value="3" min="1" step="0.1">
                                                         <div class="input-group-append"><span class="input-group-text">seconds</span></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- No Effect -->
+                                    <div role="tabpanel" class="tab-pane active" id="noeffect">
+                                        <div class="container-fluid px-0">
+                                            <p>No parameters available</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Grayscale -->
+                                    <div class="tab-pane" id="grayscale">
+                                        <div class="container-fluid">
+                                            <p>No parameters available</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Blur -->
+                                    <div class="tab-pane" id="blur">
+                                        <div class="container-fluid">
+                                            <div class="col-3" style="max-width: 100%">
+                                                <label for="blur-kernel-size">Kernel size:</label>
+                                                <div class="input-group">
+                                                    <div class="row flex-fill align-items-center mx-0 px-2 border rounded-left">
+                                                        <input class="custom-range" id="blur-kernel-size" type="range" value="3" min="3" max="9" step="2" oninput="$(this).parents('.input-group').find('.input-group-text > span').html($(this).val())">
+                                                    </div>
+                                                    <div class="input-group-append"><span class="input-group-text"><span>3</span> &times; <span>3</span></span>
                                                     </div>
                                                 </div>
                                             </div>

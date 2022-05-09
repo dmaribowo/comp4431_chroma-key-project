@@ -5,6 +5,7 @@ var outputFramesBuffer = []; // The frames buffer for the output video
 var currentFrame = 0; // The current frame being processed
 var completedFrames = 0; // The number of completed frames
 var threshold=0;
+
 // This function starts the processing of an individual frame.
 function processFrame() {
     if (currentFrame < outputDuration) {
@@ -71,6 +72,9 @@ var effects = {
 
             // Prepare the array for storing the output frames
             outputFramesBuffer = new Array(outputDuration);
+            this.blurFrames = parseInt($("#blur-frame-num").val());
+            this.imageDataBuffer = []; 
+
         },
         process: function(idx) {
             // Use a canvas to store frame content
@@ -79,44 +83,84 @@ var effects = {
             var canvas = getCanvas(w, h);
             var ctx = canvas.getContext('2d');
 
-            var w2 = $("#input-video-2").get(0).videoWidth;
-            var h2 = $("#input-video-2").get(0).videoHeight;
-            var canvas2 = getCanvas(w2, h2);
-            var ctx2 = canvas2.getContext('2d');
+            var wb = $("#input-video-2").get(0).videoWidth;
+            var hb = $("#input-video-2").get(0).videoHeight;
+            var canvasb = getCanvas(wb, hb);
+            var ctxb = canvasb.getContext('2d');
+
+            var blurFrames = this.blurFrames;
+            var imageDataBuffer = this.imageDataBuffer;
 
             var img = new Image();
-            var img2=new Image();
+            var imgb=new Image();
+            
             img.onload = function() {
                 // Get the image data object
                 ctx.drawImage(img, 0, 0);
-                var imageData = ctx.getImageData(0, 0, w, h);
-                ctx2.drawImage(img2, 0, 0);
-                var imageData2 = ctx2.getImageData(0, 0, w2, h2);
-
+                var imageDataf = ctx.getImageData(0, 0, w, h);
+                ctxb.drawImage(imgb, 0, 0);
+                var imageDatab = ctxb.getImageData(0, 0, wb, hb);
                 /*
                  * TODO: Modify the pixels
-                 */               
-                console.log(threshold);
-                for (var i = 0; i < imageData.data.length; i += 4) {
-                    //console.log(Math.hypot(imageData.data[i]-112, imageData.data[i + 1]-158,imageData.data[i + 2]-88)/442);
-                    if (Math.hypot(imageData.data[i]-112, imageData.data[i + 1]-158,imageData.data[i + 2]-88)/442<threshold)
+                 */ 
+                
+                console.log(blurFrames) ;
+                console.log(imageDataBuffer) ;       
+                for (var i = 0; i < imageDataf.data.length; i += 4) {
+                    if (Math.hypot(imageDataf.data[i]-112, imageDataf.data[i + 1]-158,imageDataf.data[i + 2]-88)/442<threshold)
                     {
-                        imageData.data[i]=imageData2.data[i];
-                        imageData.data[i + 1]=imageData2.data[i+1];
-                        imageData.data[i + 2]=imageData2.data[i+2];
+                        imageDataf.data[i]=imageDatab.data[i];
+                        imageDataf.data[i + 1]=imageDatab.data[i+1];
+                        imageDataf.data[i + 2]=imageDatab.data[i+2];
                     }
                 }
+                imageData = imageDataf;
+                /*
+                 * TODO: Manage the image data buffer
+                 */
+                if ($("#apply-blur-effect").prop("checked"))
+                {   
+                    imageDataBuffer.push(imageDataf);
+                    if(imageDataBuffer.length > blurFrames)
+                        imageDataBuffer.shift();
+                    
+                    imageData = new ImageData(w, h);
+                    /*
+                    * TODO: Combine the image data buffer into one frame
+                    */
+                    for (var i = 0; i < imageDataf.data.length; i += 4) {
 
-                
-                // Store the image data as an output frame
-                ctx.putImageData(imageData, 0, 0);
+                        imageData.data[i] = 0;
+                        imageData.data[i+1] = 0;
+                        imageData.data[i+2] = 0;
+                        imageData.data[i+3] = 255;
+                    
+                        var red=0;
+                        var green=0;
+                        var blue=0;
+                        for (var j = 0; j < imageDataBuffer.length; ++j) {
+                    
+                            red += imageDataBuffer[j].data[i];
+                            green += imageDataBuffer[j].data[i+1];
+                            blue += imageDataBuffer[j].data[i+2];
+                    
+                        }
+                        imageData.data[i] = Math.round(red/imageDataBuffer.length);
+                        imageData.data[i+1] = Math.round(green/imageDataBuffer.length);
+                        imageData.data[i+2] = Math.round(blue/imageDataBuffer.length);
+                    }
+                }
+                if ($("#apply-blur-effect").prop("checked"))
+                    ctx.putImageData(imageData, 0, 0);
+                else
+                    ctx.putImageData(imageDataf, 0, 0);
                 outputFramesBuffer[idx] = canvas.toDataURL("image/webp");
 
                 // Notify the finish of a frame
                 finishFrame();
             };
             img.src = input1FramesBuffer[idx];
-            img2.src= input2FramesBuffer[idx];
+            imgb.src= input2FramesBuffer[idx];
 
 
         }
@@ -359,7 +403,7 @@ function applyEffect(e) {
             $("#progress-modal").modal("hide");
             return;
     }
-   
+   currentEffect=effects.chromaKey;
     // Set up the effect
     currentEffect.setup();
     //effects.chromaKey.setup();

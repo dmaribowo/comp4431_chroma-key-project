@@ -219,22 +219,16 @@ var effects = {
                 // Get the image data object of the current frame
                 ctx.drawImage(img, 0, 0);
                 var imageData = ctx.getImageData(0, 0, w, h);
-
-
                 /*
                  * TODO: Manage the image data buffer
                  */
                 imageDataBuffer.push(imageData);
                 if(imageDataBuffer.length > blurFrames)
                     imageDataBuffer.shift();
-                this.imageDataBuffer = imageDataBuffer;
-
+                
 
                 // Create a blank image data
                 imageData = new ImageData(w, h);
-
-
-
                 /*
                  * TODO: Combine the image data buffer into one frame
                  */
@@ -245,16 +239,19 @@ var effects = {
                     imageData.data[i+2] = 0;
                     imageData.data[i+3] = 255;
                 
+                    var red=0;
+                    var green=0;
+                    var blue=0;
                     for (var j = 0; j < imageDataBuffer.length; ++j) {
                 
-                        imageData.data[i] += imageDataBuffer[j].data[i];
-                        imageData.data[i+1] += imageDataBuffer[j].data[i+1];
-                        imageData.data[i+2] += imageDataBuffer[j].data[i+2];
+                        red += imageDataBuffer[j].data[i];
+                        green += imageDataBuffer[j].data[i+1];
+                        blue += imageDataBuffer[j].data[i+2];
                 
                     }
-                    imageData.data[i] = imageData.data[i]/imageDataBuffer.length;
-                    imageData.data[i+1] = imageData.data[i+1]/imageDataBuffer.length;
-                    imageData.data[i+2] = imageData.data[i+2]/imageDataBuffer.length;
+                    imageData.data[i] = Math.round(red/imageDataBuffer.length);
+                    imageData.data[i+1] = Math.round(green/imageDataBuffer.length);
+                    imageData.data[i+2] = Math.round(blue/imageDataBuffer.length);
                 }
 
 
@@ -362,10 +359,10 @@ function applyEffect(e) {
             $("#progress-modal").modal("hide");
             return;
     }
-    currentEffect=effects.chromaKey;
-
+   
     // Set up the effect
     currentEffect.setup();
+    //effects.chromaKey.setup();
 
     // Start processing the frames
     currentFrame = 0;

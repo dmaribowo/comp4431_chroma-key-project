@@ -63,7 +63,7 @@ var effects = {
             finishFrame();
         }
     },
-    chromaKey: {
+    chromaKeyVideo: {
         setup: function() {
             threshold = $("#colorKey-threshold").val();
             // Initialize the duration of the output video
@@ -95,7 +95,6 @@ var effects = {
             img.onload = function() {
                 // Get the image data object
                 ctx.drawImage(img, 0, 0);
-                console.log(ctx.getImageData(0, 0, w, h));
                 var imageDataf = ctx.getImageData(0, 0, w, h);
                 ctxb.drawImage(imgb, 0, 0);
                 var imageDatab = ctxb.getImageData(0, 0, wb, hb);
@@ -111,21 +110,23 @@ var effects = {
                             imageDataf.data[i + 1] = imageDatab.data[i + 1];
                             imageDataf.data[i + 2] = imageDatab.data[i + 2];
                         }
+                        
                     }
                 } else {
                     for (var i = 0; i < imageDataf.data.length; i += 4) {
                     var r = imageDataf.data[i];
                     var g = imageDataf.data[i + 1];
                     var b = imageDataf.data[i + 2];
-                    var h = imageproc.fromRGBToHSV(r, g, b)["h"];
-                    var hue_diff = Math.max(h - 90, 90 - h);
+                    
+                    var hue = imageproc.fromRGBToHSV(r, g, b)["h"];
+                    var hue_diff = Math.abs(hue - 90);
                     if ( (hue_diff < 180 && hue_diff / 180 < threshold)||(hue_diff >= 180 && (360 - hue_diff) / 180 < threshold) ){
                         imageDataf.data[i] = imageDatab.data[i];
                         imageDataf.data[i + 1] = imageDatab.data[i + 1];
                         imageDataf.data[i + 2] = imageDatab.data[i + 2];
-                    } 
+                     } 
                 }
-                }
+           }
                 
                 imageData = new ImageData(w, h);
                 for (var i = 0; i < imageData.data.length; i += 4) {
@@ -179,6 +180,123 @@ var effects = {
             };
             img.src = input1FramesBuffer[idx];
             imgb.src = input2FramesBuffer[idx];
+
+
+        }
+    },
+
+    chromaKeyImage: {
+        setup: function() {
+            threshold = $("#colorKey-threshold").val();
+            // Initialize the duration of the output video
+            outputDuration = input1FramesBuffer.length;
+
+            // Prepare the array for storing the output frames
+            outputFramesBuffer = new Array(outputDuration);
+            this.blurFrames = parseInt($("#blur-frame-num").val());
+            this.imageDataBuffer = [];
+
+        },
+        process: function(idx) {
+            // Use a canvas to store frame content
+            var w = $("#input-video-1").get(0).videoWidth;
+            var h = $("#input-video-1").get(0).videoHeight;
+            var canvas = getCanvas(w, h);
+            var ctx = canvas.getContext('2d');
+
+            var blurFrames = this.blurFrames;
+            var imageDataBuffer = this.imageDataBuffer;
+
+            var img = new Image();
+            
+            img.onload = function() {
+                // Get the image data object
+                ctx.drawImage(img, 0, 0);
+                var imageDataf = ctx.getImageData(0, 0, w, h);
+                
+                var imageDatab = processedBackgroundImage;
+                console.log(processedBackgroundImage);
+                /*
+                 * TODO: Modify the pixels
+                 */
+                if (useRGB) 
+                {
+                    for (var i = 0; i < imageDataf.data.length; i += 4) {
+                        if (Math.hypot(imageDataf.data[i] - 112, imageDataf.data[i + 1] - 158, imageDataf.data[i + 2] - 88) / 442 < threshold) {
+                            imageDataf.data[i] = imageDatab.data[i];
+                            imageDataf.data[i + 1] = imageDatab.data[i + 1];
+                            imageDataf.data[i + 2] = imageDatab.data[i + 2];
+                        }
+                        
+                    }
+                } else {
+                    for (var i = 0; i < imageDataf.data.length; i += 4) {
+                    var r = imageDataf.data[i];
+                    var g = imageDataf.data[i + 1];
+                    var b = imageDataf.data[i + 2];
+                    
+                    var hue = imageproc.fromRGBToHSV(r, g, b)["h"];
+                    var hue_diff = Math.abs(hue - 90);
+                    if ( (hue_diff < 180 && hue_diff / 180 < threshold)||(hue_diff >= 180 && (360 - hue_diff) / 180 < threshold) ){
+                        imageDataf.data[i] = imageDatab.data[i];
+                        imageDataf.data[i + 1] = imageDatab.data[i + 1];
+                        imageDataf.data[i + 2] = imageDatab.data[i + 2];
+                     } 
+                }
+           }
+                
+                imageData = new ImageData(w, h);
+                for (var i = 0; i < imageData.data.length; i += 4) {
+                        imageData.data[i] = imageDataf.data[i];
+                        imageData.data[i + 1] = imageDataf.data[i + 1];
+                        imageData.data[i + 2] = imageDataf.data[i + 2];
+                        imageData.data[i + 3] = imageDataf.data[i + 3];
+                }
+            
+                /*
+                 * TODO: Manage the image data buffer
+                 */
+                if ($("#apply-blur-effect").prop("checked")) {
+                    imageDataBuffer.push(imageDataf);
+                    if (imageDataBuffer.length > blurFrames)
+                        imageDataBuffer.shift();
+
+                    imageData = new ImageData(w, h);
+                    /*
+                     * TODO: Combine the image data buffer into one frame
+                     */
+                    for (var i = 0; i < imageDataf.data.length; i += 4) {
+
+                        imageData.data[i] = 0;
+                        imageData.data[i + 1] = 0;
+                        imageData.data[i + 2] = 0;
+                        imageData.data[i + 3] = 255;
+
+                        var red = 0;
+                        var green = 0;
+                        var blue = 0;
+                        for (var j = 0; j < imageDataBuffer.length; ++j) {
+
+                            red += imageDataBuffer[j].data[i];
+                            green += imageDataBuffer[j].data[i + 1];
+                            blue += imageDataBuffer[j].data[i + 2];
+
+                        }
+                        imageData.data[i] = Math.round(red / imageDataBuffer.length);
+                        imageData.data[i + 1] = Math.round(green / imageDataBuffer.length);
+                        imageData.data[i + 2] = Math.round(blue / imageDataBuffer.length);
+                    }
+                }
+                
+                ctx.putImageData(imageData, 0, 0);
+                
+                outputFramesBuffer[idx] = canvas.toDataURL("image/webp");
+
+                // Notify the finish of a frame
+                finishFrame();
+            };
+            img.src = input1FramesBuffer[idx];
+        
 
 
         }
@@ -350,7 +468,7 @@ function applyEffect(e) {
 
             console.log("do chroma key video...");
             // TODO: do video processing here
-            currentEffect = effects.chromaKey;
+            currentEffect = effects.chromaKeyVideo;
             // Set up the effect
             currentEffect.setup();
             //effects.chromaKey.setup();
@@ -368,7 +486,7 @@ function applyEffect(e) {
             // TODO: do image processing here
             switch (selectedEffect) {
                 case "noeffect":
-                    processedBackgroundImage = inputImageData.data;
+                    processedBackgroundImage = inputImageData;
                     break;
                 case "grayscale":
                     var canvas = document.createElement("canvas");
@@ -391,6 +509,20 @@ function applyEffect(e) {
                     console.log(processedBackgroundImage);
                     break;
             }
+
+            $("#progress-modal").modal("show");
+            updateProgressBar("#effect-progress", 0);
+            console.log("do chroma key image...");
+            // TODO: do image processing here
+            currentEffect = effects.chromaKeyImage;
+            // Set up the effect
+            currentEffect.setup();
+            //effects.chromaKey.setup();
+
+            // Start processing the frames
+            currentFrame = 0;
+            completedFrames = 0;
+            processFrame();
         }
     }
 }

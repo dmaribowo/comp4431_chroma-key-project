@@ -165,7 +165,7 @@ function changeVideo(event) {
 
 function changeImage(event) {
     // The allowed video formats
-    var validFileType = ["image/jpeg", "image/png", "image/jpg"];
+    var validFileType = ["image/jpeg", "image/png", "image/jpg","image/webp","image/jfif"];
 
     // Get the selected file
     var files = event.target.files;

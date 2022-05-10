@@ -63,7 +63,7 @@ var effects = {
             finishFrame();
         }
     },
-    chromaKeyVideo: {
+    chromaKey: {
         setup: function() {
             threshold = $("#colorKey-threshold").val();
             // Initialize the duration of the output video
@@ -92,18 +92,21 @@ var effects = {
 
             var img = new Image();
             var imgb = new Image();
-
+            console.log("running");
             img.onload = function() {
                 // Get the image data object
                 ctx.drawImage(img, 0, 0);
                 var imageDataf = ctx.getImageData(0, 0, w, h);
+                console.log("getImageData");
                 ctxb.drawImage(imgb, 0, 0);
                 var imageDatab = ctxb.getImageData(0, 0, wb, hb);
+                console.log("onload");
                 /*
                  * TODO: Modify the pixels
                  */
                 if (useRGB)
                 {
+                    console.log("for loop");
                     for (var i = 0; i < imageDataf.data.length; i += 4) 
                     {
                         if (Math.hypot(imageDataf.data[i] - 112, imageDataf.data[i + 1] - 158, imageDataf.data[i + 2] - 88) / 442 < threshold) 
@@ -112,7 +115,8 @@ var effects = {
                             imageDataf.data[i + 1] = imageDatab.data[i + 1];
                             imageDataf.data[i + 2] = imageDatab.data[i + 2];
                         }
-                }}
+                    }
+                }
                 else
                 {
                     for (var i = 0; i < inputData.data.length; i += 4) {
@@ -134,7 +138,10 @@ var effects = {
                             imageDataf.data[i + 2] = imageDatab.data[i + 2];  
                         }
                 }
+                imageData = new ImageData(w, h);
                 imageData = imageDataf;
+                console.log(imageData);
+                console.log(imageData == imageDataf);
                 /*
                  * TODO: Manage the image data buffer
                  */
@@ -169,10 +176,9 @@ var effects = {
                         imageData.data[i + 2] = Math.round(blue / imageDataBuffer.length);
                     }
                 }
-                if ($("#apply-blur-effect").prop("checked"))
-                    ctx.putImageData(imageData, 0, 0);
-                else
-                    ctx.putImageData(imageDataf, 0, 0);
+                
+                ctx.putImageData(imageData, 0, 0);
+                
                 outputFramesBuffer[idx] = canvas.toDataURL("image/webp");
 
                 // Notify the finish of a frame

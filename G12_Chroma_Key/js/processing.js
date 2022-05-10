@@ -92,56 +92,49 @@ var effects = {
 
             var img = new Image();
             var imgb = new Image();
-            console.log("running");
             img.onload = function() {
                 // Get the image data object
                 ctx.drawImage(img, 0, 0);
+                console.log(ctx.getImageData(0, 0, w, h));
                 var imageDataf = ctx.getImageData(0, 0, w, h);
-                console.log("getImageData");
                 ctxb.drawImage(imgb, 0, 0);
                 var imageDatab = ctxb.getImageData(0, 0, wb, hb);
-                console.log("onload");
+                
                 /*
                  * TODO: Modify the pixels
                  */
-                if (useRGB)
+                if (useRGB) 
                 {
-                    console.log("for loop");
-                    for (var i = 0; i < imageDataf.data.length; i += 4) 
-                    {
-                        if (Math.hypot(imageDataf.data[i] - 112, imageDataf.data[i + 1] - 158, imageDataf.data[i + 2] - 88) / 442 < threshold) 
-                        {   
+                    for (var i = 0; i < imageDataf.data.length; i += 4) {
+                        if (Math.hypot(imageDataf.data[i] - 112, imageDataf.data[i + 1] - 158, imageDataf.data[i + 2] - 88) / 442 < threshold) {
                             imageDataf.data[i] = imageDatab.data[i];
                             imageDataf.data[i + 1] = imageDatab.data[i + 1];
                             imageDataf.data[i + 2] = imageDatab.data[i + 2];
                         }
                     }
+                } else {
+                    for (var i = 0; i < imageDataf.data.length; i += 4) {
+                    var r = imageDataf.data[i];
+                    var g = imageDataf.data[i + 1];
+                    var b = imageDataf.data[i + 2];
+                    var h = imageproc.fromRGBToHSV(r, g, b)["h"];
+                    var hue_diff = Math.max(h - 90, 90 - h);
+                    if ( (hue_diff < 180 && hue_diff / 180 < threshold)||(hue_diff >= 180 && (360 - hue_diff) / 180 < threshold) ){
+                        imageDataf.data[i] = imageDatab.data[i];
+                        imageDataf.data[i + 1] = imageDatab.data[i + 1];
+                        imageDataf.data[i + 2] = imageDatab.data[i + 2];
+                    } 
                 }
-                else
-                {
-                    for (var i = 0; i < inputData.data.length; i += 4) {
-                        var r = inputData.data[i];
-                        var g = inputData.data[i + 1];
-                        var b = inputData.data[i + 2];
-                        var h=imageproc.fromRGBToHSV(r,g,b)["h"];
-                        var hue_diff=Math.max(h-90,90-h);
-                        if (hue_diff<180 && hue_diff/180<threshold)
-                        {
-                            imageDataf.data[i] = imageDatab.data[i];
-                            imageDataf.data[i + 1] = imageDatab.data[i + 1];
-                            imageDataf.data[i + 2] = imageDatab.data[i + 2];
-                        }
-                        else if (hue_diff>=180 && (360-hue_diff)/180<threshold)
-                        {
-                            imageDataf.data[i] = imageDatab.data[i];
-                            imageDataf.data[i + 1] = imageDatab.data[i + 1];
-                            imageDataf.data[i + 2] = imageDatab.data[i + 2];  
-                        }
                 }
+                
                 imageData = new ImageData(w, h);
-                imageData = imageDataf;
-                console.log(imageData);
-                console.log(imageData == imageDataf);
+                for (var i = 0; i < imageData.data.length; i += 4) {
+                        imageData.data[i] = imageDataf.data[i];
+                        imageData.data[i + 1] = imageDataf.data[i + 1];
+                        imageData.data[i + 2] = imageDataf.data[i + 2];
+                        imageData.data[i + 3] = imageDataf.data[i + 3];
+                }
+            
                 /*
                  * TODO: Manage the image data buffer
                  */
@@ -332,9 +325,8 @@ var effects = {
             };
             img.src = input1FramesBuffer[idx];
         }
-    }
-    
-}};
+    },
+};
 
 // Handler for the "Apply" button click event
 function applyEffect(e) {
@@ -358,7 +350,7 @@ function applyEffect(e) {
 
             console.log("do chroma key video...");
             // TODO: do video processing here
-            currentEffect = effects.chromaKeyVideo;
+            currentEffect = effects.chromaKey;
             // Set up the effect
             currentEffect.setup();
             //effects.chromaKey.setup();
@@ -374,7 +366,31 @@ function applyEffect(e) {
             return;
         } else {
             // TODO: do image processing here
+            switch (selectedEffect) {
+                case "noeffect":
+                    processedBackgroundImage = inputImageData.data;
+                    break;
+                case "grayscale":
+                    var canvas = document.createElement("canvas");
+                    var imageData = canvas.getContext("2d").createImageData(inputImageData.width, inputImageData.height);
 
+                    processedBackgroundImage = imageproc.createBuffer(imageData);
+                    imageproc.grayscale(inputImageData, processedBackgroundImage);
+
+                    console.log(processedBackgroundImage);
+                    break;
+                case "blur":
+                    var canvas = document.createElement("canvas");
+                    var imageData = canvas.getContext("2d").createImageData(inputImageData.width, inputImageData.height);
+                    var size = parseInt($("#blur-kernel-size").val());
+                    console.log(size);
+
+                    processedBackgroundImage = imageproc.createBuffer(inputImageData);
+                    imageproc.blur(inputImageData, processedBackgroundImage, size);
+
+                    console.log(processedBackgroundImage);
+                    break;
+            }
         }
     }
 }

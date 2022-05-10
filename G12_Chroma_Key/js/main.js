@@ -18,6 +18,7 @@ var stopProcessingFlag = false; // True if stop processing is clicked
 var inputImageData = null;
 var useBgVideo = null;
 var useRGB = true;
+var processedBackgroundImage = null;
 
 // Helper function for creating a standalone copy of the source buffer
 function copyBuffer(source) {
@@ -191,9 +192,10 @@ function changeImage(event) {
                     $("#canvas-image-2").append(canvas);
                     ctx.drawImage(image, 0, 0);
                     inputImageData = ctx.getImageData(0, 0,
-                        ctx.canvas.clientWidth, ctx.canvas.clientHeight);
+                        image.width, image.height);
                     console.log(inputImageData);
                     $("#canvas-image-2").hide();
+                    // imageproc.init("canvas-image-2", "output-canvas", imageUrl);
                 }
                 image.src = imageUrl;
                 // var button = document.createElement("button");
@@ -226,7 +228,7 @@ function captureFrame(video, resultBuffer) {
     // Create a canvas for making the frame image
     var w = video.videoWidth;
     var h = video.videoHeight;
-    console.log(w + " " + h);
+    //console.log(w + " " + h);
 
     // The vide is not ready
     if (video.readyState == 0 || w == 0 || h == 0)

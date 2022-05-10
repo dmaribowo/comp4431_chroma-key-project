@@ -11,11 +11,11 @@
      */
     imageproc.init = function(inputCanvasId,
         outputCanvasId,
-        inputImageId) {
+        inputImageUrl) {
         input = $("#" + inputCanvasId).get(0).getContext("2d");
         output = $("#" + outputCanvasId).get(0).getContext("2d");
 
-        imageSelector = $("#" + inputImageId);
+        imageSelector = inputImageUrl;
         imageproc.updateInputImage();
     }
 
@@ -27,7 +27,7 @@
         image.onload = function() {
             input.drawImage(image, 0, 0);
         }
-        image.src = "images/" + imageSelector.val();
+        image.src = imageSelector;
     }
 
     /*

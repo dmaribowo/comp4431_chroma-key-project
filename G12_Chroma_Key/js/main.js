@@ -89,11 +89,33 @@ function importVideo() {
         if ($(importingFor).attr("id") === "change-input-video-1") {
             target = $("#input-video-1");
             input1FramesBuffer = copyBuffer(importBuffer);
+            
         } else {
             target = $("#input-video-2");
             input2FramesBuffer = copyBuffer(importBuffer);
+            /*if (input2FramesBuffer.length<input1FramesBuffer.length)
+            {
+                for(var i=input2FramesBuffer.length;i<input1FramesBuffer.length;i++)
+                {
+                    var w = $("#input-video-1").get(0).videoWidth;
+                    var h = $("#input-video-1").get(0).videoHeight;
+                    var canvas = getCanvas(w, h);
+                    var ctx = canvas.getContext('2d');
+                    var newFrame=new ImageData(w,h);
+                    for (var j=0;j<input1FramesBuffer[i].data.length;j+=4)
+                    {
+                        newFrame.data[j]=0;
+                        newFrame.data[j+1]=0;
+                        newFrame.data[j+2]=0;
+                        newFrame.data[j+3]=255;
+                    }
+                    input2FramesBuffer.append(newFrame);
+                }
+            }*/
         }
+        
 
+        
         // Build a new video based on the imported frames
         buildVideo(importBuffer, function(resultVideo) {
             // Set the resulted video as the 'src' of the import target

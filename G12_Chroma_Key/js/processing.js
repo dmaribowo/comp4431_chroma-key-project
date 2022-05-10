@@ -68,7 +68,7 @@ var effects = {
             threshold = $("#colorKey-threshold").val();
             // Initialize the duration of the output video
             outputDuration = input1FramesBuffer.length;
-
+            
             // Prepare the array for storing the output frames
             outputFramesBuffer = new Array(outputDuration);
             this.blurFrames = parseInt($("#blur-frame-num").val());
@@ -97,8 +97,13 @@ var effects = {
                 ctx.drawImage(img, 0, 0);
                 var imageDataf = ctx.getImageData(0, 0, w, h);
                 ctxb.drawImage(imgb, 0, 0);
-                var imageDatab = ctxb.getImageData(0, 0, wb, hb);
+                var imageDatab;
                 
+                if (!$("#use-chroma-key").prop("checked"))
+                    imageDatab=imageDataf;
+                else
+                    imageDatab = ctxb.getImageData(0, 0, wb, hb);
+
                 /*
                  * TODO: Modify the pixels
                  */
@@ -214,8 +219,13 @@ var effects = {
                 ctx.drawImage(img, 0, 0);
                 var imageDataf = ctx.getImageData(0, 0, w, h);
                 
-                var imageDatab = processedBackgroundImage;
-                console.log(processedBackgroundImage);
+                var imageDatab;
+                
+                if (!$("#use-chroma-key").prop("checked"))
+                    imageDatab=imageDataf;
+                else
+                    imageDatab = processedBackgroundImage;
+
                 /*
                  * TODO: Modify the pixels
                  */

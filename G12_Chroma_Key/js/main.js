@@ -19,6 +19,10 @@ var inputImageData = null;
 var useBgVideo = null;
 var useRGB = true;
 var processedBackgroundImage = null;
+var redKey = 112;
+var greenKey = 158;
+var blueKey = 88;
+var hueKey = 90;
 
 // Helper function for creating a standalone copy of the source buffer
 function copyBuffer(source) {
@@ -89,7 +93,7 @@ function importVideo() {
         if ($(importingFor).attr("id") === "change-input-video-1") {
             target = $("#input-video-1");
             input1FramesBuffer = copyBuffer(importBuffer);
-            
+
         } else {
             target = $("#input-video-2");
             input2FramesBuffer = copyBuffer(importBuffer);
@@ -113,9 +117,9 @@ function importVideo() {
                 }
             }*/
         }
-        
 
-        
+
+
         // Build a new video based on the imported frames
         buildVideo(importBuffer, function(resultVideo) {
             // Set the resulted video as the 'src' of the import target
@@ -187,7 +191,7 @@ function changeVideo(event) {
 
 function changeImage(event) {
     // The allowed video formats
-    var validFileType = ["image/jpeg", "image/png", "image/jpg","image/webp","image/jfif"];
+    var validFileType = ["image/jpeg", "image/png", "image/jpg", "image/webp", "image/jfif"];
 
     // Get the selected file
     var files = event.target.files;
@@ -379,11 +383,15 @@ function changeTabsRGB(e) {
     target.parents("li").find("span.title").html(target.html());
 
     // Change the current operation in different tab
-    if ($(e.target).attr("href").substring(1) == "rgb")
+    if ($(e.target).attr("href").substring(1) == "rgb") {
         useRGB = true;
-    else
+        $("#color-key").show();
+        $("#hue-key").hide();
+    } else {
         useRGB = false;
-
+        $("#hue-key").show();
+        $("#color-key").hide();
+    }
     console.log(useRGB);
 
     e.preventDefault();
@@ -412,11 +420,12 @@ $(function() {
     $("#bg-image-dropdown-item").on("click", function() {
         $("#image-effect-dropdown").show();
         useBgVideo = false;
-    })
+    });
     $("#bg-video-dropdown-item").on("click", function() {
         $("#image-effect-dropdown").hide();
         useBgVideo = true;
-    })
+    });
+    $("#hue-key").hide();
     $("#input-video-1, #input-video-2, #output-video").on("timeupdate", updateFrames);
     $("#change-input-video-1, #change-input-video-2").on("click", startUpload);
     $("#file-select").on("change", changeVideo);

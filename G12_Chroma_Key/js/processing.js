@@ -68,7 +68,7 @@ var effects = {
             threshold = $("#colorKey-threshold").val();
             // Initialize the duration of the output video
             outputDuration = input1FramesBuffer.length;
-            
+
             // Prepare the array for storing the output frames
             outputFramesBuffer = new Array(outputDuration);
             this.blurFrames = parseInt($("#blur-frame-num").val());
@@ -98,49 +98,60 @@ var effects = {
                 var imageDataf = ctx.getImageData(0, 0, w, h);
                 ctxb.drawImage(imgb, 0, 0);
                 var imageDatab;
-                
+
                 if (!$("#use-chroma-key").prop("checked"))
-                    imageDatab=imageDataf;
+                    imageDatab = imageDataf;
                 else
                     imageDatab = ctxb.getImageData(0, 0, wb, hb);
 
                 /*
                  * TODO: Modify the pixels
                  */
-                if (useRGB) 
-                {
+                if (useRGB) {
                     for (var i = 0; i < imageDataf.data.length; i += 4) {
-                        if (Math.hypot(imageDataf.data[i] - 112, imageDataf.data[i + 1] - 158, imageDataf.data[i + 2] - 88) / 442 < threshold) {
-                            imageDataf.data[i] = imageDatab.data[i];
-                            imageDataf.data[i + 1] = imageDatab.data[i + 1];
-                            imageDataf.data[i + 2] = imageDatab.data[i + 2];
+                        if (Math.hypot(imageDataf.data[i] - redKey, imageDataf.data[i + 1] - greenKey, imageDataf.data[i + 2] - blueKey) / 442 < threshold) {
+                            if (idx < input2FramesBuffer.length) {
+                                imageDataf.data[i] = imageDatab.data[i];
+                                imageDataf.data[i + 1] = imageDatab.data[i + 1];
+                                imageDataf.data[i + 2] = imageDatab.data[i + 2];
+                            } else {
+                                imageDataf.data[i] = 0;
+                                imageDataf.data[i + 1] = 0;
+                                imageDataf.data[i + 2] = 0;
+                            }
                         }
-                        
+
                     }
                 } else {
                     for (var i = 0; i < imageDataf.data.length; i += 4) {
-                    var r = imageDataf.data[i];
-                    var g = imageDataf.data[i + 1];
-                    var b = imageDataf.data[i + 2];
-                    
-                    var hue = imageproc.fromRGBToHSV(r, g, b)["h"];
-                    var hue_diff = Math.abs(hue - 90);
-                    if ( (hue_diff < 180 && hue_diff / 180 < threshold)||(hue_diff >= 180 && (360 - hue_diff) / 180 < threshold) ){
-                        imageDataf.data[i] = imageDatab.data[i];
-                        imageDataf.data[i + 1] = imageDatab.data[i + 1];
-                        imageDataf.data[i + 2] = imageDatab.data[i + 2];
-                     } 
+                        var r = imageDataf.data[i];
+                        var g = imageDataf.data[i + 1];
+                        var b = imageDataf.data[i + 2];
+
+                        var hue = imageproc.fromRGBToHSV(r, g, b)["h"];
+                        var hue_diff = Math.abs(hue - hueKey);
+                        if ((hue_diff < 180 && hue_diff / 180 < threshold) || (hue_diff >= 180 && (360 - hue_diff) / 180 < threshold)) {
+                            if (idx < input2FramesBuffer.length) {
+                                imageDataf.data[i] = imageDatab.data[i];
+                                imageDataf.data[i + 1] = imageDatab.data[i + 1];
+                                imageDataf.data[i + 2] = imageDatab.data[i + 2];
+                            } else {
+                                imageDataf.data[i] = 0;
+                                imageDataf.data[i + 1] = 0;
+                                imageDataf.data[i + 2] = 0;
+                            }
+                        }
+                    }
                 }
-           }
-                
+
                 imageData = new ImageData(w, h);
                 for (var i = 0; i < imageData.data.length; i += 4) {
-                        imageData.data[i] = imageDataf.data[i];
-                        imageData.data[i + 1] = imageDataf.data[i + 1];
-                        imageData.data[i + 2] = imageDataf.data[i + 2];
-                        imageData.data[i + 3] = imageDataf.data[i + 3];
+                    imageData.data[i] = imageDataf.data[i];
+                    imageData.data[i + 1] = imageDataf.data[i + 1];
+                    imageData.data[i + 2] = imageDataf.data[i + 2];
+                    imageData.data[i + 3] = imageDataf.data[i + 3];
                 }
-            
+
                 /*
                  * TODO: Manage the image data buffer
                  */
@@ -175,16 +186,20 @@ var effects = {
                         imageData.data[i + 2] = Math.round(blue / imageDataBuffer.length);
                     }
                 }
-                
+
                 ctx.putImageData(imageData, 0, 0);
-                
+
                 outputFramesBuffer[idx] = canvas.toDataURL("image/webp");
 
                 // Notify the finish of a frame
                 finishFrame();
             };
             img.src = input1FramesBuffer[idx];
-            imgb.src = input2FramesBuffer[idx];
+
+            if (idx < input2FramesBuffer.length)
+                imgb.src = input2FramesBuffer[idx];
+            else
+                imgb.src = input1FramesBuffer[idx];
 
 
         }
@@ -213,56 +228,55 @@ var effects = {
             var imageDataBuffer = this.imageDataBuffer;
 
             var img = new Image();
-            
+
             img.onload = function() {
                 // Get the image data object
                 ctx.drawImage(img, 0, 0);
                 var imageDataf = ctx.getImageData(0, 0, w, h);
-                
+
                 var imageDatab;
-                
+
                 if (!$("#use-chroma-key").prop("checked"))
-                    imageDatab=imageDataf;
+                    imageDatab = imageDataf;
                 else
                     imageDatab = processedBackgroundImage;
 
                 /*
                  * TODO: Modify the pixels
                  */
-                if (useRGB) 
-                {
+                if (useRGB) {
                     for (var i = 0; i < imageDataf.data.length; i += 4) {
                         if (Math.hypot(imageDataf.data[i] - 112, imageDataf.data[i + 1] - 158, imageDataf.data[i + 2] - 88) / 442 < threshold) {
                             imageDataf.data[i] = imageDatab.data[i];
                             imageDataf.data[i + 1] = imageDatab.data[i + 1];
                             imageDataf.data[i + 2] = imageDatab.data[i + 2];
                         }
-                        
+
                     }
                 } else {
                     for (var i = 0; i < imageDataf.data.length; i += 4) {
-                    var r = imageDataf.data[i];
-                    var g = imageDataf.data[i + 1];
-                    var b = imageDataf.data[i + 2];
-                    
-                    var hue = imageproc.fromRGBToHSV(r, g, b)["h"];
-                    var hue_diff = Math.abs(hue - 90);
-                    if ( (hue_diff < 180 && hue_diff / 180 < threshold)||(hue_diff >= 180 && (360 - hue_diff) / 180 < threshold) ){
-                        imageDataf.data[i] = imageDatab.data[i];
-                        imageDataf.data[i + 1] = imageDatab.data[i + 1];
-                        imageDataf.data[i + 2] = imageDatab.data[i + 2];
-                     } 
+                        var r = imageDataf.data[i];
+                        var g = imageDataf.data[i + 1];
+                        var b = imageDataf.data[i + 2];
+
+                        var hue = imageproc.fromRGBToHSV(r, g, b)["h"];
+                        var hue_diff = Math.abs(hue - 90);
+                        if ((hue_diff < 180 && hue_diff / 180 < threshold) || (hue_diff >= 180 && (360 - hue_diff) / 180 < threshold)) {
+                            imageDataf.data[i] = imageDatab.data[i];
+                            imageDataf.data[i + 1] = imageDatab.data[i + 1];
+                            imageDataf.data[i + 2] = imageDatab.data[i + 2];
+                        }
+                    }
                 }
-           }
-                
+
                 imageData = new ImageData(w, h);
                 for (var i = 0; i < imageData.data.length; i += 4) {
-                        imageData.data[i] = imageDataf.data[i];
-                        imageData.data[i + 1] = imageDataf.data[i + 1];
-                        imageData.data[i + 2] = imageDataf.data[i + 2];
-                        imageData.data[i + 3] = imageDataf.data[i + 3];
+                    imageData.data[i] = imageDataf.data[i];
+                    imageData.data[i + 1] = imageDataf.data[i + 1];
+                    imageData.data[i + 2] = imageDataf.data[i + 2];
+                    imageData.data[i + 3] = imageDataf.data[i + 3];
                 }
-            
+
                 /*
                  * TODO: Manage the image data buffer
                  */
@@ -297,16 +311,16 @@ var effects = {
                         imageData.data[i + 2] = Math.round(blue / imageDataBuffer.length);
                     }
                 }
-                
+
                 ctx.putImageData(imageData, 0, 0);
-                
+
                 outputFramesBuffer[idx] = canvas.toDataURL("image/webp");
 
                 // Notify the finish of a frame
                 finishFrame();
             };
             img.src = input1FramesBuffer[idx];
-        
+
 
 
         }
@@ -471,6 +485,10 @@ function applyEffect(e) {
             alert("Input background video/image!");
             return;
         } else {
+            redKey = $("#red-key").val();
+            greenKey = $("#green-key").val();
+            blueKey = $("#blue-key").val();
+            hueKey = $("#hue-key-value").val();
             console.log("do chroma key video1...");
             $("#progress-modal").modal("show");
             updateProgressBar("#effect-progress", 0);
@@ -494,6 +512,10 @@ function applyEffect(e) {
             return;
         } else {
             // TODO: do image processing here
+            redKey = $("#red-key").val();
+            greenKey = $("#green-key").val();
+            blueKey = $("#blue-key").val();
+            hueKey = $("#hue-key-value").val();
             switch (selectedEffect) {
                 case "noeffect":
                     processedBackgroundImage = inputImageData;
